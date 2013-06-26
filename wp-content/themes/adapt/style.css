@@ -269,15 +269,18 @@ blockquote.right{
 /*-----------------------------------------------------------------------------------*/
 #page-heading{
 	position: relative;
-	margin-bottom: 30px;
 	padding-bottom: 25px;
-	/*border-bottom: 5px solid #444;*/
 }
+
 #page-heading h1,
 #page-heading h2{
 	font-size: 21px;
 	line-height: 1em;
 	margin: 0px !important;
+}
+
+#page-heading h1 {
+	font-size: 26px;
 }
 
 h2.heading{
@@ -289,6 +292,7 @@ h2.heading{
 }
 h2.heading span{
 	background: #fff;
+	font-size: 25px;
 	padding: 0 20px;
 }
 
@@ -707,7 +711,9 @@ ul.filter a.active{
 	float: right;
 	width: 41%;
 }
-
+#single-portfolio-right p{
+	font-size: 14px;
+}
 #single-portfolio-left h1{
 	font-size: 18px;
 	line-height: 1em;
@@ -1664,4 +1670,17 @@ span.wpcf7-not-valid-tip{
       -ms-transition-duration: 0s;
        -o-transition-duration: 0s;
           transition-duration: 0s;
+}
+
+/*Portfolio*/
+.btn_portfolio {
+	background-color: #A7CE21;
+	font-size: 14px;
+	height: 100%;
+	padding: 7px;
+	text-align: center;
+	width: 90px;
+}
+.btn_portfolio a {
+	color: #fff;
 }
