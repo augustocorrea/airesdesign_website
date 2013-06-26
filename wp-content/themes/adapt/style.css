@@ -370,13 +370,14 @@ ul.sf-menu li li.sfHover ul {
 }
 .sf-menu a {
 	height: 40px;
-	line-height: 40px;
+	line-height: 48px;
+	font-size: 16px;
 	display: block;
 	float: left;
 	font-weight: normal;
-    color: #999;
+  color: #999;
 	padding: 0 10px;
-    text-decoration: none;
+  text-decoration: none;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
