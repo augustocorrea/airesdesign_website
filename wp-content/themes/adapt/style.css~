@@ -271,7 +271,7 @@ blockquote.right{
 	position: relative;
 	margin-bottom: 30px;
 	padding-bottom: 25px;
-	border-bottom: 5px solid #444;
+	/*border-bottom: 5px solid #444;*/
 }
 #page-heading h1,
 #page-heading h2{

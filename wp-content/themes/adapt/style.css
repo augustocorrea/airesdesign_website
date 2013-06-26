@@ -306,15 +306,12 @@ h2.heading span{
 	max-width: 30%;
 }
 #logo a{
-	font-size: 32px;
-    font-weight: 700;
-    color: #000;
-	padding: 0px;
-	margin: 0px;
-    text-decoration: none;
-}
-#logo a:hover {
-	color: #666;
+  text-indent: -1000px;
+  overflow: hidden;
+  height: 80px;
+  width: 200px;
+  display: block;
+  background: url("images/logo.png") no-repeat left top;
 }
 
 
