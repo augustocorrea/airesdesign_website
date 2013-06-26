@@ -28,7 +28,7 @@ class CCTM_dropdown extends CCTM_FormElement
 	/**
 	 * Register the appropriatejs
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
 		wp_enqueue_script('cctm_dropdown');
 	}
@@ -234,7 +234,7 @@ class CCTM_dropdown extends CCTM_FormElement
 
 
 		// Populate the values (i.e. properties) of this field
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 		$this->value    = htmlspecialchars( html_entity_decode($current_value) );
 
 		// wrap
@@ -280,7 +280,9 @@ class CCTM_dropdown extends CCTM_FormElement
 					<table><tr><td width="600" style="vertical-align:top">';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
-		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
+		$out .= '
+			<input type="hidden" name="use_key_values" value="0"/>
+			<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
 				 <label for="use_key_values" class="cctm_label cctm_checkbox_label" id="use_key_values_label">'
 			. __('Distinct options/values?', CCTM_TXTDOMAIN) .
 			'</label>
@@ -400,7 +402,7 @@ class CCTM_dropdown extends CCTM_FormElement
 
 		// Execute as MySQL?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="is_sql_wrapper">
-
+				<input type="hidden" name="is_sql" value="0"/>
 				 <input type="checkbox" name="is_sql" class="cctm_checkbox" id="is_sql" value="1"'. $is_sql_checked.'/> 				 <label for="is_sql" class="cctm_label cctm_checkbox_label" id="is_sql_label">'
 				 .__('Execute as a MySQL query?', CCTM_TXTDOMAIN).'</label> <span>'.__('Select up to 2 columns: the 1st column will be the visible label and the 2nd column (if present) will represent the value stored in the database.
 				 	Use [+table_prefix+] instead of hard-coding your WordPress database table prefix.',CCTM_TXTDOMAIN).'</span>
@@ -421,7 +423,23 @@ class CCTM_dropdown extends CCTM_FormElement
 		return $out;
 	}
 
-
+    //------------------------------------------------------------------------------
+    /**
+     * The option desc. here is simply a list of the options OR the SQL query alt.
+     */
+    public function get_options_desc() {
+        if (!empty($this->props['options'])) {
+            $options = implode(', ',$this->props['options']);
+        }
+        else {
+            $options = $this->props['alternate_input'];        
+        }
+        if (strlen($options) > 50) {
+            $options = substr($options, 0, 50). '&hellip;';
+        }
+        return $options;
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * Validate and sanitize any submitted data. Used when editing the definition for

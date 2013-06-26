@@ -19,7 +19,13 @@ TODO: Should there be limits on what gets posted to this form because it does
 cough up post contents?  Is the Ajax nonce enough?
 ------------------------------------------------------------------------------*/
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('edit_posts')) exit('You do not have permission to do that.');
+// See https://code.google.com/p/wordpress-summarize-posts/issues/detail?id=39
+$post_type = CCTM::get_value($_POST, 'post_type', 'post');
+$cap = 'edit_posts';
+if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
+	$cap = $GLOBALS['wp_post_types'][$post_type]->cap->edit_posts; 
+}
+if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
@@ -129,6 +135,44 @@ foreach($results as $r) {
 	$r['post_title'] = __($r['post_title']);
 	$r['post_content'] = __($r['post_content']);
 	$r['post_excerpt'] = __($r['post_excerpt']);
+	
+	// Special Stuff for RelationMeta fields: generate the other form elements
+	// TODO: put this as a method in CCTM_FormElement to make it extendable? 
+	if ($def['type']=='relationmeta') {
+	   
+        $r['metafields'] = '';
+	   
+        // Custom fields		
+        $custom_fields = CCTM::get_value($def, 'metafields', array());
+        $relationmeta_tpl = CCTM::load_tpl(
+    		array('fields/options/'.$def['name'].'.tpl'
+    			, 'fields/options/_relationmeta.tpl'
+    		)
+    	);      
+        foreach ( $custom_fields as $cf ) {
+        	// skip the field if it no longer exists
+        	if (!isset(CCTM::$data['custom_field_defs'][$cf])) {
+        		continue;
+        	}
+        	$d = CCTM::$data['custom_field_defs'][$cf];
+        	if (isset($d['required']) && $d['required'] == 1) {
+        		$d['label'] = $d['label'] . '*'; // Add asterisk
+        	}
+
+        	$output_this_field = '';
+        	if (!$FieldObj = CCTM::load_object($d['type'],'fields')) {
+        		continue;
+        	}
+        
+            $d['name'] = $fieldname.'['.$r['ID'].']['.$d['name'].']';
+            $d['is_repeatable'] = false; // override
+            $FieldObj->set_props($d);
+            $output_this_field = $FieldObj->get_create_field_instance();
+            $r['metafields'] .= CCTM::parse($relationmeta_tpl, array('content'=>$output_this_field));
+        }
+	
+
+	}
 
 	print CCTM::parse($tpl, $r);
 }

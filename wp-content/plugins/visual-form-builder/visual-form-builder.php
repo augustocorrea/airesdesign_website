@@ -4,22 +4,25 @@ Plugin Name: Visual Form Builder
 Description: Dynamically build forms using a simple interface. Forms include jQuery validation, a basic logic-based verification system, and entry tracking.
 Author: Matthew Muro
 Author URI: http://matthewmuro.com
-Version: 2.7.1
+Version: 2.7.5
 */
 
+// Version number to output as meta tag
+define( 'VFB_VERSION', '2.7.5' );
+
 /*
-This program is free software; you can redistribute it and/or modify 
-it under the terms of the GNU General Public License as published by 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
 the Free Software Foundation; version 2 of the License.
 
-This program is distributed in the hope that it will be useful, 
-but WITHOUT ANY WARRANTY; without even the implied warranty of 
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-GNU General Public License for more details. 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License 
-along with this program; if not, write to the Free Software 
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA 
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // Instantiate new class
@@ -27,7 +30,7 @@ $visual_form_builder = new Visual_Form_Builder();
 
 // Visual Form Builder class
 class Visual_Form_Builder{
-	
+
 	/**
 	 * The DB version. Used for SQL install and upgrades.
 	 *
@@ -38,8 +41,8 @@ class Visual_Form_Builder{
 	 * @var string
 	 * @access protected
 	 */
-	protected $vfb_db_version = '2.6.7';
-	
+	protected $vfb_db_version = '2.7';
+
 	/**
 	 * Flag used to add scripts to front-end only once
 	 *
@@ -48,7 +51,7 @@ class Visual_Form_Builder{
 	 * @access protected
 	 */
 	protected $add_scripts = false;
-	
+
 	/**
 	 * An array of countries to be used throughout plugin
 	 *
@@ -56,8 +59,17 @@ class Visual_Form_Builder{
 	 * @var array
 	 * @access public
 	 */
-	public $countries = array( "", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombi", "Comoros", "Congo (Brazzaville)", "Congo", "Costa Rica", "Cote d\'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor (Timor Timur)", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia, The", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepa", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia and Montenegro", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe" );
-	
+	public $countries = array( "", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombi", "Comoros", "Congo (Brazzaville)", "Congo", "Costa Rica", "Cote d\'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor (Timor Timur)", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia, The", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepa", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe" );
+
+	/**
+	 * Admin page menu hooks
+	 *
+	 * @since 2.7.2
+	 * @var array
+	 * @access private
+	 */
+	private $_admin_pages = array();
+
 	/**
 	 * Constructor. Register core filters and actions.
 	 *
@@ -65,19 +77,19 @@ class Visual_Form_Builder{
 	 */
 	public function __construct(){
 		global $wpdb;
-		
+
 		// Setup global database table names
 		$this->field_table_name 	= $wpdb->prefix . 'visual_form_builder_fields';
 		$this->form_table_name 		= $wpdb->prefix . 'visual_form_builder_forms';
 		$this->entries_table_name 	= $wpdb->prefix . 'visual_form_builder_entries';
-				
+
 		// Make sure we are in the admin before proceeding.
 		if ( is_admin() ) {
 			// Build options and settings pages.
 			add_action( 'admin_menu', array( &$this, 'add_admin' ) );
 			add_action( 'admin_init', array( &$this, 'save' ) );
-			add_action( 'admin_init', array( &$this, 'additional_plugin_setup' ) );
-			
+			add_action( 'admin_menu', array( &$this, 'additional_plugin_setup' ) );
+
 			// Register AJAX functions
 			$actions = array(
 				// Form Builder
@@ -85,59 +97,42 @@ class Visual_Form_Builder{
 				'create_field',
 				'delete_field',
 				'form_settings',
-				
+
 				// Media button
 				'media_button',
 			);
-			
-			// Add all AJAX functions			
+
+			// Add all AJAX functions
 			foreach( $actions as $name ) {
-				add_action( "wp_ajax_visual_form_builder_$name", array( &$this, "ajax_$name" ) );	
-			}			
-			
-			add_action( 'load-toplevel_page_visual-form-builder', array( &$this, 'help' ) );
+				add_action( "wp_ajax_visual_form_builder_$name", array( &$this, "ajax_$name" ) );
+			}
 
 			// Adds additional media button to insert form shortcode
 			add_action( 'media_buttons', array( &$this, 'add_media_button' ), 999 );
-			
+
 			// Adds a Dashboard widget
 			add_action( 'wp_dashboard_setup', array( &$this, 'add_dashboard_widget' ) );
-			
-			// Load the includes files
-			add_action( 'load-visual-form-builder_page_vfb-entries', array( &$this, 'includes' ) );
-			
-			// Adds a Screen Options tab to the Entries screen
-			add_filter( 'set-screen-option', array( &$this, 'save_screen_options' ), 10, 3 );
-			add_filter( 'load-toplevel_page_visual-form-builder', array( &$this, 'screen_options' ) );
-			add_filter( 'load-visual-form-builder_page_vfb-entries', array( &$this, 'screen_options' ) );
-			
-			// Add meta boxes to the form builder admin page
-			add_action( 'load-toplevel_page_visual-form-builder', array( &$this, 'add_meta_boxes' ) );
-			
+
 			// Adds a Settings link to the Plugins page
 			add_filter( 'plugin_action_links', array( &$this, 'plugin_action_links' ), 10, 2 );
-			
+
 			// Check the db version and run SQL install, if needed
 			add_action( 'plugins_loaded', array( &$this, 'update_db_check' ) );
-						
-			// Load the jQuery and CSS we need if we're on our plugin page
-			$current_pages = array( 'toplevel_page_visual-form-builder', 'visual-form-builder_page_vfb-add-new', 'visual-form-builder_page_vfb-entries', 'visual-form-builder_page_vfb-export' );
-			
-			foreach ( $current_pages as $page ) {
-				add_action( "load-$page", array( &$this, 'admin_scripts' ) );
-			}
-			
+
 			// Display update messages
 			add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 		}
-		
+
 		// Load i18n
 		add_action( 'plugins_loaded', array( &$this, 'languages' ) );
-		
+
+		// Print meta keyword
+		add_action( 'wp_head', array( &$this, 'add_meta_keyword' ) );
+
 		add_shortcode( 'vfb', array( &$this, 'form_code' ) );
 		add_action( 'init', array( &$this, 'email' ), 10 );
 		add_action( 'init', array( &$this, 'confirmation' ), 12 );
-		
+
 		// Add CSS to the front-end
 		add_action( 'wp_enqueue_scripts', array( &$this, 'css' ) );
 	}
@@ -145,108 +140,140 @@ class Visual_Form_Builder{
 	/**
 	 * Allow for additional plugin code to be run during admin_init
 	 * which is not available during the plugin __construct()
-	 * 
+	 *
 	 * @since 2.7
 	 */
 	public function additional_plugin_setup() {
-			
+
+		$page_main = $this->_admin_pages[ 'vfb' ];
+
 		if ( !get_option( 'vfb_dashboard_widget_options' ) ) {
 			$widget_options['vfb_dashboard_recent_entries'] = array(
 				'items' => 5,
 			);
 			update_option( 'vfb_dashboard_widget_options', $widget_options );
 		}
-			
+
 	}
-	
+
+	/**
+	 * Output plugin version number to help with troubleshooting
+	 *
+	 * @since 2.7.5
+	 */
+	public function add_meta_keyword() {
+		echo sprintf( "\n<meta name='vfb-version' content='%s' />\n", VFB_VERSION );
+	}
+
 	/**
 	 * Load localization file
-	 * 
+	 *
 	 * @since 2.7
 	 */
 	public function languages() {
 		load_plugin_textdomain( 'visual-form-builder', false , 'visual-form-builder/languages' );
 	}
-	
+
 	/**
 	 * Adds extra include files
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public function includes(){
 		global $entries_list, $entries_detail;
-		
+
 		// Load the Entries List class
 		require_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/class-entries-list.php' );
 		$entries_list = new VisualFormBuilder_Entries_List();
-		
+
 		// Load the Entries Details class
 		require_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/class-entries-detail.php' );
-		$entries_detail = new VisualFormBuilder_Entries_Detail();		
+		$entries_detail = new VisualFormBuilder_Entries_Detail();
 	}
-	
+
+	public function include_forms_list() {
+		global $forms_list;
+
+		// Load the Forms List class
+		require_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/class-forms-list.php' );
+		$forms_list = new VisualFormBuilder_Forms_List();
+	}
+
 	/**
 	 * Add Settings link to Plugins page
-	 * 
-	 * @since 1.8 
+	 *
+	 * @since 1.8
 	 * @return $links array Links to add to plugin name
 	 */
 	public function plugin_action_links( $links, $file ) {
 		if ( $file == plugin_basename( __FILE__ ) )
 			$links[] = '<a href="admin.php?page=visual-form-builder">' . __( 'Settings' , 'visual-form-builder') . '</a>';
-	
+
 		return $links;
-	}	
-	
+	}
+
 	/**
 	 * Adds the media button image
-	 * 
+	 *
 	 * @since 2.3
 	 */
 	public function add_media_button(){
-    	if ( current_user_can( 'manage_options' ) )
-			echo '<a href="' . add_query_arg( array( 'action' => 'visual_form_builder_media_button', 'width' => '450' ), admin_url( 'admin-ajax.php' ) ) . '" class="thickbox" title="Add Visual Form Builder form"><img width="18" height="18" src="' . plugins_url( 'visual-form-builder/images/vfb_icon.png' ) . '" alt="Add Visual Form Builder form" /></a>';
+    	if ( current_user_can( 'manage_options' ) ) :
+?>
+			<a href="<?php echo add_query_arg( array( 'action' => 'visual_form_builder_media_button', 'width' => '450' ), admin_url( 'admin-ajax.php' ) ); ?>" class="button add_media thickbox" title="Add Visual Form Builder form">
+				<img width="18" height="18" src="<?php echo plugins_url( 'visual-form-builder/images/vfb_icon.png' ); ?>" alt="<?php _e( 'Add Visual Form Builder form', 'visual-form-builder' ); ?>" style="vertical-align: middle; margin-left: -8px; margin-top: -2px;" /> <?php _e( 'Add Form', 'visual-form-builder' ); ?>
+			</a>
+<?php
+		endif;
 	}
-		
+
 	/**
 	 * Adds the dashboard widget
-	 * 
+	 *
 	 * @since 2.7
 	 */
 	public function add_dashboard_widget() {
 		wp_add_dashboard_widget( 'vfb-dashboard', __( 'Recent Visual Form Builder Entries', 'visual-form-builder' ), array( &$this, 'dashboard_widget' ), array( &$this, 'dashboard_widget_control' ) );
 	}
-	
+
 	/**
 	 * Displays the dashboard widget content
-	 * 
+	 *
 	 * @since 2.7
 	 */
 	public function dashboard_widget() {
 		global $wpdb;
-		
+
 		// Get the date/time format that is saved in the options table
 		$date_format = get_option( 'date_format' );
 		$time_format = get_option( 'time_format' );
-		
+
 		$widgets = get_option( 'vfb_dashboard_widget_options' );
 		$total_items = isset( $widgets['vfb_dashboard_recent_entries'] ) && isset( $widgets['vfb_dashboard_recent_entries']['items'] ) ? absint( $widgets['vfb_dashboard_recent_entries']['items'] ) : 5;
-		
-		$entries = $wpdb->get_results( $wpdb->prepare( "SELECT forms.form_title, entries.entries_id, entries.form_id, entries.sender_name, entries.sender_email, entries.date_submitted FROM $this->form_table_name AS forms INNER JOIN $this->entries_table_name AS entries ON entries.form_id = forms.form_id ORDER BY entries.date_submitted DESC LIMIT %d", $total_items ) );
-						
-		if ( !$entries ) :
+
+		$forms = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->form_table_name}" );
+
+		if ( !$forms ) :
 			echo sprintf(
-				'<p>%1$s<a href="%2$s">%3$s</a>.',
+				'<p>%1$s <a href="%2$s">%3$s</a></p>',
 				__( 'You currently do not have any forms.', 'visual-form-builder' ),
 				esc_url( admin_url( 'admin.php?page=vfb-add-new' ) ),
 				__( 'Get started!', 'visual-form-builder' )
 			);
+
+			return;
+		endif;
+
+		$entries = $wpdb->get_results( $wpdb->prepare( "SELECT forms.form_title, entries.entries_id, entries.form_id, entries.sender_name, entries.sender_email, entries.date_submitted FROM $this->form_table_name AS forms INNER JOIN $this->entries_table_name AS entries ON entries.form_id = forms.form_id ORDER BY entries.date_submitted DESC LIMIT %d", $total_items ) );
+
+		if ( !$entries ) :
+			echo sprintf( '<p>%1$s</p>', __( 'You currently do not have any entries.', 'visual-form-builder' ) );
 		else :
-			
+
 			$content = '';
-			
+
 			foreach ( $entries as $entry ) :
-				
+
 				$content .= sprintf(
 					'<li><a href="%1$s">%4$s</a> via <a href="%2$s">%5$s</a> <span class="rss-date">%6$s</span><cite>%3$s</cite></li>',
 					esc_url( add_query_arg( array( 'action' => 'view', 'entry' => absint( $entry->entries_id ) ), admin_url( 'admin.php?page=vfb-entries' ) ) ),
@@ -256,34 +283,34 @@ class Visual_Form_Builder{
 					esc_html( $entry->form_title ),
 					date( "$date_format $time_format", strtotime( $entry->date_submitted ) )
 				);
-				
+
 			endforeach;
-			
+
 			echo "<div class='rss-widget'><ul>$content</ul></div>";
-		
+
 		endif;
 	}
-	
+
 	/**
 	 * Displays the dashboard widget form control
-	 * 
+	 *
 	 * @since 2.7
 	 */
 	public function dashboard_widget_control() {
 		if ( !$widget_options = get_option( 'vfb_dashboard_widget_options' ) )
 			$widget_options = array();
-	
+
 		if ( !isset( $widget_options['vfb_dashboard_recent_entries'] ) )
 			$widget_options['vfb_dashboard_recent_entries'] = array();
-	
+
 		if ( 'POST' == $_SERVER['REQUEST_METHOD'] && isset( $_POST['vfb-widget-recent-entries'] ) ) {
 			$number = absint( $_POST['vfb-widget-recent-entries']['items'] );
 			$widget_options['vfb_dashboard_recent_entries']['items'] = $number;
 			update_option( 'vfb_dashboard_widget_options', $widget_options );
 		}
-	
+
 		$number = isset( $widget_options['vfb_dashboard_recent_entries']['items'] ) ? (int) $widget_options['vfb_dashboard_recent_entries']['items'] : '';
-	
+
 		echo sprintf(
 			'<p>
 			<label for="comments-number">%1$s</label>
@@ -293,10 +320,10 @@ class Visual_Form_Builder{
 			$number
 		);
 	}
-		
+
 	/**
 	 * Register contextual help. This is for the Help tab dropdown
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function help(){
@@ -333,7 +360,7 @@ class Visual_Form_Builder{
 			'title' => 'Validation',
 			'content' => "<p>Visual Form Builder uses the <a href='http://docs.jquery.com/Plugins/Validation/Validator'>jQuery Form Validation plugin</a> to perform clientside form validation.</p>
 					<ul>
-						
+
 						<li><em>Email</em>: makes the element require a valid email.</li>
 						<li><em>URL</em>: makes the element require a valid url.</li>
 						<li><em>Date</em>: makes the element require a date. <a href='http://docs.jquery.com/Plugins/Validation/Methods/date'>Refer to documentation for various accepted formats</a>.
@@ -368,7 +395,7 @@ class Visual_Form_Builder{
 						<li><em>Include a Copy of the User's Entry</em>: appends a copy of the user's submitted entry to the notification email.</li>
 					</ul>"
 		) );
-		
+
 		$screen->add_help_tab( array(
 			'id' => 'vfb-help-tab-tips',
 			'title' => 'Tips',
@@ -380,64 +407,79 @@ class Visual_Form_Builder{
 					</ul>"
 		) );
 	}
-		
+
 	/**
 	 * Adds the Screen Options tab to the Entries screen
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function screen_options(){
 		$screen = get_current_screen();
-		
+
+		$page_main		= $this->_admin_pages[ 'vfb' ];
+		$page_entries 	= $this->_admin_pages[ 'vfb-entries' ];
+
 		switch( $screen->id ) {
-			case 'visual-form-builder_page_vfb-entries' :
+			case $page_entries :
+
 				add_screen_option( 'per_page', array(
 					'label'		=> __( 'Entries per page', 'visual-form-builder' ),
 					'default'	=> 20,
 					'option'	=> 'vfb_entries_per_page'
 				) );
-			break;
-			
-			case 'toplevel_page_visual-form-builder' :
-				if ( !isset( $_REQUEST['form'] ) )
-					break;
-				
-				add_screen_option( 'layout_columns', array(
-					'max'		=> 2,
-					'default'	=> 2
-				) );
 
 			break;
-		}		
+
+			case $page_main :
+
+				if ( isset( $_REQUEST['form'] ) ) :
+					add_screen_option( 'layout_columns', array(
+						'max'		=> 2,
+						'default'	=> 2
+					) );
+				else :
+					add_screen_option( 'per_page', array(
+						'label'		=> __( 'Forms per page', 'visual-form-builder' ),
+						'default'	=> 20,
+						'option'	=> 'vfb_forms_per_page'
+					) );
+				endif;
+
+			break;
+		}
 	}
-	
+
 	/**
 	 * Saves the Screen Options
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function save_screen_options( $status, $option, $value ){
-		
+
 		if ( $option == 'vfb_entries_per_page' )
 				return $value;
+		elseif ( $option == 'vfb_forms_per_page' )
+				return $value;
 	}
-	
+
 	/**
 	 * Add meta boxes to form builder screen
-	 * 
+	 *
 	 * @since 1.8
 	 */
 	public function add_meta_boxes() {
 		global $current_screen;
-		
-		if ( $current_screen->id == 'toplevel_page_visual-form-builder' && isset( $_REQUEST['form'] ) ) {
-			add_meta_box( 'vfb_form_items_meta_box', __( 'Form Items', 'visual-form-builder' ), array( &$this, 'meta_box_form_items' ), 'toplevel_page_visual-form-builder', 'side', 'high' );
-			add_meta_box( 'vfb_form_media_button_tip', __( 'Display Forms', 'visual-form-builder' ), array( &$this, 'meta_box_display_forms' ), 'toplevel_page_visual-form-builder', 'side', 'low' );
+
+		$page_main = $this->_admin_pages[ 'vfb' ];
+
+		if ( $current_screen->id == $page_main && isset( $_REQUEST['form'] ) ) {
+			add_meta_box( 'vfb_form_items_meta_box', __( 'Form Items', 'visual-form-builder' ), array( &$this, 'meta_box_form_items' ), $page_main, 'side', 'high' );
+			add_meta_box( 'vfb_form_media_button_tip', __( 'Display Forms', 'visual-form-builder' ), array( &$this, 'meta_box_display_forms' ), $page_main, 'side', 'low' );
 		}
 	}
 	/**
 	 * Output for Form Items meta box
-	 * 
+	 *
 	 * @since 1.8
 	 */
 	public function meta_box_form_items() {
@@ -467,9 +509,9 @@ class Visual_Form_Builder{
 					<li><a href="#" class="vfb-draggable-form-items" id="form-element-email"><b></b>Email</a></li>
 					<li><a href="#" class="vfb-draggable-form-items" id="form-element-currency"><b></b>Currency</a></li>
 					<li><a href="#" class="vfb-draggable-form-items" id="form-element-time"><b></b>Time</a></li>
-					
+
 					<li><a href="#" class="vfb-draggable-form-items" id="form-element-html"><b></b>HTML</a></li>
-					
+
 					<li><a href="#" class="vfb-draggable-form-items" id="form-element-instructions"><b></b>Instructions</a></li>
 				</ul>
 				<div class="clear"></div>
@@ -481,7 +523,7 @@ class Visual_Form_Builder{
 
 	/**
 	 * Output for the Display Forms meta box
-	 * 
+	 *
 	 * @since 1.8
 	 */
 	public function meta_box_display_forms() {
@@ -492,11 +534,11 @@ class Visual_Form_Builder{
     	<p><?php _e( 'You may also manually insert the shortcode into a post/page.', 'visual-form-builder' ); ?></p>
     	<p><?php _e( 'Shortcode', 'visual-form-builder' ); ?> <code>[vfb id='<?php echo (int) $_REQUEST['form']; ?>']</code></p>
 	<?php
-	}	
-	
+	}
+
 	/**
 	 * Check database version and run SQL install, if needed
-	 * 
+	 *
 	 * @since 2.1
 	 */
 	public function update_db_check() {
@@ -505,32 +547,32 @@ class Visual_Form_Builder{
 			update_option( 'vfb_db_version', $this->vfb_db_version );
 			$this->install_db();
 		}
-		
+
 		// If database version doesn't match, update and run SQL install
 		if ( version_compare( get_option( 'vfb_db_version' ), $this->vfb_db_version, '<' ) ) {
 			update_option( 'vfb_db_version', $this->vfb_db_version );
 			$this->install_db();
 		}
 	}
-	
+
 	/**
 	 * Install database tables
-	 * 
-	 * @since 1.0 
+	 *
+	 * @since 1.0
 	 */
 	static function install_db() {
 		global $wpdb;
-		
+
 		$field_table_name     = $wpdb->prefix . 'visual_form_builder_fields';
 		$form_table_name      = $wpdb->prefix . 'visual_form_builder_forms';
 		$entries_table_name   = $wpdb->prefix . 'visual_form_builder_entries';
-		
+
 		// Explicitly set the character set and collation when creating the tables
 		$charset = ( defined( 'DB_CHARSET' && '' !== DB_CHARSET ) ) ? DB_CHARSET : 'utf8';
 		$collate = ( defined( 'DB_COLLATE' && '' !== DB_COLLATE ) ) ? DB_COLLATE : 'utf8_general_ci';
-		
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' ); 
-				
+
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
 		$field_sql = "CREATE TABLE $field_table_name (
 				field_id BIGINT(20) NOT NULL AUTO_INCREMENT,
 				form_id BIGINT(20) NOT NULL,
@@ -572,7 +614,7 @@ class Visual_Form_Builder{
 				form_label_alignment VARCHAR(25),
 				PRIMARY KEY  (form_id)
 			) DEFAULT CHARACTER SET $charset COLLATE $collate;";
-		
+
 		$entries_sql = "CREATE TABLE $entries_table_name (
 				entries_id BIGINT(20) NOT NULL AUTO_INCREMENT,
 				form_id BIGINT(20) NOT NULL,
@@ -583,88 +625,95 @@ class Visual_Form_Builder{
 				emails_to TEXT,
 				date_submitted DATETIME,
 				ip_address VARCHAR(25),
+				entry_approved VARCHAR(20) DEFAULT '1',
 				PRIMARY KEY  (entries_id)
 			) DEFAULT CHARACTER SET $charset COLLATE $collate;";
-		
+
 		// Create or Update database tables
 		dbDelta( $field_sql );
 		dbDelta( $form_sql );
 		dbDelta( $entries_sql );
 	}
-	
+
 	/**
 	 * Queue plugin scripts for sorting form fields
-	 * 
-	 * @since 1.0 
+	 *
+	 * @since 1.0
 	 */
 	public function admin_scripts() {
 		wp_enqueue_script( 'jquery-ui-sortable' );
 		wp_enqueue_script( 'postbox' );
 		wp_enqueue_script( 'jquery-form-validation', plugins_url( '/js/jquery.validate.min.js', __FILE__ ), array( 'jquery' ), '1.9.0', true );
-		wp_enqueue_script( 'form-elements-add', plugins_url( 'visual-form-builder/js/vfb-admin.js' ) , array( 'jquery', 'jquery-form-validation' ), '', true );
-		wp_enqueue_script( 'nested-sortable', plugins_url( 'visual-form-builder/js/jquery.ui.nestedSortable.js' ) , array( 'jquery', 'jquery-ui-sortable' ), '', true );
-		
-		wp_enqueue_style( 'visual-form-builder-style', plugins_url( "visual-form-builder/css/visual-form-builder-admin.css" ) );
+		wp_enqueue_script( 'vfb-admin', plugins_url( '/js/vfb-admin.js', __FILE__ ) , array( 'jquery', 'jquery-form-validation' ), '', true );
+		wp_enqueue_script( 'nested-sortable', plugins_url( '/js/jquery.ui.nestedSortable.js', __FILE__ ) , array( 'jquery', 'jquery-ui-sortable' ), '1.3.5', true );
+
+		wp_enqueue_style( 'visual-form-builder-style', plugins_url( '/css/visual-form-builder-admin.css', __FILE__ ) );
+
+		wp_localize_script( 'vfb-admin', 'VfbAdminPages', array( 'vfb_pages' => $this->_admin_pages ) );
 	}
-	
+
 	/**
 	 * Queue form validation scripts
-	 * 
-	 * @since 1.0 
+	 *
+	 * @since 1.0
 	 */
 	public function scripts() {
 		// Make sure scripts are only added once via shortcode
 		$this->add_scripts = true;
-		
-		wp_enqueue_script( 'jquery-form-validation', plugins_url( '/js/jquery.validate.min.js', __FILE__ ), array( 'jquery' ), '1.9.0', true );
+
+		wp_register_script( 'jquery-form-validation', plugins_url( '/js/jquery.validate.min.js', __FILE__ ), array( 'jquery' ), '1.9.0', true );
+		wp_register_script( 'visual-form-builder-validation', plugins_url( '/js/vfb-validation.js', __FILE__ ) , array( 'jquery', 'jquery-form-validation' ), '', true );
+		wp_register_script( 'visual-form-builder-metadata', plugins_url( '/js/jquery.metadata.js', __FILE__ ) , array( 'jquery', 'jquery-form-validation' ), '', true );
+		wp_register_script( 'vfb-ckeditor', plugins_url( '/js/ckeditor/ckeditor.js', __FILE__ ), array( 'jquery' ), '4.1', true );
+
+		wp_enqueue_script( 'jquery-form-validation' );
 		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_script( 'visual-form-builder-validation', plugins_url( 'visual-form-builder/js/vfb-validation.js' ) , array( 'jquery', 'jquery-form-validation' ), '', true );
-		wp_enqueue_script( 'visual-form-builder-metadata', plugins_url( 'visual-form-builder/js/jquery.metadata.js' ) , array( 'jquery', 'jquery-form-validation' ), '', true );
+		wp_enqueue_script( 'visual-form-builder-validation' );
+		wp_enqueue_script( 'visual-form-builder-metadata' );
+		wp_enqueue_script( 'vfb-ckeditor' );
 	}
-	
+
 	/**
 	 * Add form CSS to wp_head
-	 * 
-	 * @since 1.0 
+	 *
+	 * @since 1.0
 	 */
 	public function css() {
 		wp_register_style( 'vfb-jqueryui-css', apply_filters( 'vfb-date-picker-css', plugins_url( '/css/smoothness/jquery-ui-1.9.2.min.css', __FILE__ ) ) );
 		wp_register_style( 'visual-form-builder-css', apply_filters( 'visual-form-builder-css', plugins_url( '/css/visual-form-builder.css', __FILE__ ) ) );
-		wp_register_script( 'visual-form-builder-quicktags', plugins_url( '/js/js_quicktags.js', __FILE__ ) );
-		
+
 		wp_enqueue_style( 'visual-form-builder-css' );
 		wp_enqueue_style( 'vfb-jqueryui-css' );
-		wp_enqueue_script( 'visual-form-builder-quicktags' );
 	}
-		
+
 	/**
 	 * Actions to save, update, and delete forms/form fields
-	 * 
-	 * 
+	 *
+	 *
 	 * @since 1.0
 	 */
 	public function save() {
 		global $wpdb;
-		
+
 		if ( !isset( $_REQUEST['page'] ) )
 			return;
-		
+
 		if ( !isset( $_REQUEST['action'] ) )
 			return;
-		
-		if ( in_array( $_REQUEST['page'], array( 'visual-form-builder', 'vfb-add-new' ) ) ) :
+
+		if ( in_array( $_REQUEST['page'], array( 'visual-form-builder', 'vfb-add-new', 'vfb-entries' ) ) ) :
 			switch ( $_REQUEST['action'] ) :
 				case 'create_form' :
-					
+
 					check_admin_referer( 'create_form' );
-					
+
 					$form_key 		= sanitize_title( $_REQUEST['form_title'] );
 					$form_title 	= esc_html( $_REQUEST['form_title'] );
 					$form_from_name = esc_html( $_REQUEST['form_email_from_name'] );
 					$form_subject 	= esc_html( $_REQUEST['form_email_subject'] );
 					$form_from 		= esc_html( $_REQUEST['form_email_from'] );
 					$form_to 		= serialize( $_REQUEST['form_email_to'] );
-					
+
 					$newdata = array(
 						'form_key' 				=> $form_key,
 						'form_title' 			=> $form_title,
@@ -673,14 +722,14 @@ class Visual_Form_Builder{
 						'form_email_from'		=> $form_from,
 						'form_email_to'			=> $form_to,
 						'form_success_message'	=> '<p id="form_success">Your form was successfully submitted. Thank you for contacting us.</p>'
-					);					
-					
+					);
+
 					// Create the form
 					$wpdb->insert( $this->form_table_name, $newdata );
-					
+
 					// Get form ID to add our first field
 					$new_form_selected = $wpdb->insert_id;
-					
+
 					// Setup the initial fieldset
 					$initial_fieldset = array(
 						'form_id' 			=> $wpdb->insert_id,
@@ -689,10 +738,10 @@ class Visual_Form_Builder{
 						'field_name' 		=> 'Fieldset',
 						'field_sequence' 	=> 0
 					);
-					
-					// Add the first fieldset to get things started 
+
+					// Add the first fieldset to get things started
 					$wpdb->insert( $this->field_table_name, $initial_fieldset );
-					
+
 					$verification_fieldset = array(
 						'form_id' 			=> $new_form_selected,
 						'field_key' 		=> 'verification',
@@ -701,12 +750,12 @@ class Visual_Form_Builder{
 						'field_description' => '(This is for preventing spam)',
 						'field_sequence' 	=> 1
 					);
-					
-					// Insert the submit field 
+
+					// Insert the submit field
 					$wpdb->insert( $this->field_table_name, $verification_fieldset );
-					
+
 					$verify_fieldset_parent_id = $wpdb->insert_id;
-					
+
 					$secret = array(
 						'form_id' 			=> $new_form_selected,
 						'field_key' 		=> 'secret',
@@ -717,10 +766,10 @@ class Visual_Form_Builder{
 						'field_parent' 		=> $verify_fieldset_parent_id,
 						'field_sequence' 	=> 2
 					);
-					
-					// Insert the submit field 
+
+					// Insert the submit field
 					$wpdb->insert( $this->field_table_name, $secret );
-					
+
 					// Make the submit last in the sequence
 					$submit = array(
 						'form_id' 			=> $new_form_selected,
@@ -730,20 +779,20 @@ class Visual_Form_Builder{
 						'field_parent' 		=> $verify_fieldset_parent_id,
 						'field_sequence' 	=> 3
 					);
-					
-					// Insert the submit field 
+
+					// Insert the submit field
 					$wpdb->insert( $this->field_table_name, $submit );
-					
+
 					// Redirect to keep the URL clean (use AJAX in the future?)
 					wp_redirect( 'admin.php?page=visual-form-builder&form=' . $new_form_selected );
 					exit();
-					
+
 				break;
-				
+
 				case 'update_form' :
-					
+
 					check_admin_referer( 'vfb_update_form' );
-					
+
 					$form_id 						= absint( $_REQUEST['form_id'] );
 					$form_key 						= sanitize_title( $_REQUEST['form_title'], $form_id );
 					$form_title 					= $_REQUEST['form_title'];
@@ -762,7 +811,7 @@ class Visual_Form_Builder{
 					$form_notification_message 		= isset( $_REQUEST['form_notification_message'] ) ? wp_richedit_pre( $_REQUEST['form_notification_message'] ) : '';
 					$form_notification_entry 		= isset( $_REQUEST['form_notification_entry'] ) ? $_REQUEST['form_notification_entry'] : '';
 					$form_label_alignment 			= $_REQUEST['form_label_alignment'];
-					
+
 					// Add confirmation based on which type was selected
 					switch ( $form_success_type ) {
 						case 'text' :
@@ -775,7 +824,7 @@ class Visual_Form_Builder{
 							$form_success_message = $_REQUEST['form_success_message_redirect'];
 						break;
 					}
-					
+
 					$newdata = array(
 						'form_key' 						=> $form_key,
 						'form_title' 					=> $form_title,
@@ -796,19 +845,19 @@ class Visual_Form_Builder{
 						'form_notification_entry' 		=> $form_notification_entry,
 						'form_label_alignment' 			=> $form_label_alignment
 					);
-					
+
 					$where = array( 'form_id' => $form_id );
-					
+
 					// Update form details
 					$wpdb->update( $this->form_table_name, $newdata, $where );
-					
+
 					// Initialize field sequence
 					$field_sequence = 0;
-					
+
 					// Loop through each field and update
 					foreach ( $_REQUEST['field_id'] as $id ) :
 						$id = absint( $id );
-						
+
 						$field_name 		= ( isset( $_REQUEST['field_name-' . $id] ) ) ? $_REQUEST['field_name-' . $id] : '';
 						$field_key 			= sanitize_key( sanitize_title( $field_name, $id ) );
 						$field_desc 		= ( isset( $_REQUEST['field_description-' . $id] ) ) ? $_REQUEST['field_description-' . $id] : '';
@@ -819,7 +868,7 @@ class Visual_Form_Builder{
 						$field_css 			= ( isset( $_REQUEST['field_css-' . $id] ) ) ? $_REQUEST['field_css-' . $id] : '';
 						$field_layout 		= ( isset( $_REQUEST['field_layout-' . $id] ) ) ? $_REQUEST['field_layout-' . $id] : '';
 						$field_default 		= ( isset( $_REQUEST['field_default-' . $id] ) ) ? $_REQUEST['field_default-' . $id] : '';
-						
+
 						$field_data = array(
 							'field_key' 		=> $field_key,
 							'field_name' 		=> $field_name,
@@ -833,47 +882,47 @@ class Visual_Form_Builder{
 							'field_sequence' 	=> $field_sequence,
 							'field_default' 	=> $field_default
 						);
-						
+
 						$where = array(
 							'form_id' 	=> $form_id,
 							'field_id' 	=> $id
 						);
-						
+
 						// Update all fields
 						$wpdb->update( $this->field_table_name, $field_data, $where );
-						
+
 						$field_sequence++;
 					endforeach;
-										
+
 				break;
-				
+
 				case 'delete_form' :
 					$id = absint( $_REQUEST['form'] );
-					
+
 					check_admin_referer( 'delete-form-' . $id );
-					
+
 					// Delete form and all fields
 					$wpdb->query( $wpdb->prepare( "DELETE FROM $this->form_table_name WHERE form_id = %d", $id ) );
 					$wpdb->query( $wpdb->prepare( "DELETE FROM $this->field_table_name WHERE form_id = %d", $id ) );
-					
+
 					// Redirect to keep the URL clean (use AJAX in the future?)
 					wp_redirect( add_query_arg( 'action', 'deleted', 'admin.php?page=visual-form-builder' ) );
 					exit();
-					
+
 				break;
-				
+
 				case 'copy_form' :
 					$id = absint( $_REQUEST['form'] );
-					
+
 					check_admin_referer( 'copy-form-' . $id );
-					
-					// Get all fields and data for the request form					
+
+					// Get all fields and data for the request form
 					$fields    = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $this->field_table_name WHERE form_id = %d", $id ) );
 					$forms     = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $this->form_table_name WHERE form_id = %d", $id ) );
 					$override  = $wpdb->get_var( $wpdb->prepare( "SELECT form_email_from_override, form_email_from_name_override, form_notification_email FROM $this->form_table_name WHERE form_id = %d", $id ) );
 					$from_name = $wpdb->get_var( null, 1 );
 					$notify    = $wpdb->get_var( null, 2 );
-					
+
 					// Copy this form and force the initial title to denote a copy
 					foreach ( $forms as $form ) {
 						$data = array(
@@ -896,13 +945,13 @@ class Visual_Form_Builder{
 							'form_notification_entry' 		=> $form->form_notification_entry,
 							'form_label_alignment' 			=> $form->form_label_alignment
 						);
-						
+
 						$wpdb->insert( $this->form_table_name, $data );
 					}
-					
+
 					// Get form ID to add our first field
 					$new_form_selected = $wpdb->insert_id;
-					
+
 					// Copy each field and data
 					foreach ( $fields as $field ) {
 						$data = array(
@@ -920,41 +969,46 @@ class Visual_Form_Builder{
 							'field_layout' 		=> $field->field_layout,
 							'field_parent' 		=> $field->field_parent
 						);
-						
+
 						$wpdb->insert( $this->field_table_name, $data );
 
 						// If a parent field, save the old ID and the new ID to update new parent ID
 						if ( in_array( $field->field_type, array( 'fieldset', 'section', 'verification' ) ) )
 							$parents[ $field->field_id ] = $wpdb->insert_id;
-						
+
 						if ( $override == $field->field_id )
 							$wpdb->update( $this->form_table_name, array( 'form_email_from_override' => $wpdb->insert_id ), array( 'form_id' => $new_form_selected ) );
-						
+
 						if ( $from_name == $field->field_id )
 							$wpdb->update( $this->form_table_name, array( 'form_email_from_name_override' => $wpdb->insert_id ), array( 'form_id' => $new_form_selected ) );
-							
+
 						if ( $notify == $field->field_id )
 							$wpdb->update( $this->form_table_name, array( 'form_notification_email' => $wpdb->insert_id ), array( 'form_id' => $new_form_selected ) );
 					}
-					
+
 					// Loop through our parents and update them to their new IDs
 					foreach ( $parents as $k => $v ) {
-						$wpdb->update( $this->field_table_name, array( 'field_parent' => $v ), array( 'form_id' => $new_form_selected, 'field_parent' => $k ) );	
+						$wpdb->update( $this->field_table_name, array( 'field_parent' => $v ), array( 'form_id' => $new_form_selected, 'field_parent' => $k ) );
 					}
-					
+
+				break;
+
+				case 'trash_entry' :
+					$entry_id = absint( $_GET['entry'] );
+					$wpdb->update( $this->entries_table_name, array( 'entry_approved' => 'trash' ), array( 'entries_id' => $entry_id ) );
 				break;
 			endswitch;
 		endif;
-	}	
-	
+	}
+
 	/**
 	 * The jQuery field sorting callback
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function ajax_sort_field() {
 		global $wpdb;
-		
+
 		$data = array();
 
 		foreach ( $_REQUEST['order'] as $k ) {
@@ -968,36 +1022,34 @@ class Visual_Form_Builder{
 
 		foreach ( $data as $k => $v ) {
 			// Update each field with it's new sequence and parent ID
-			$wpdb->update( $this->field_table_name, array( 'field_sequence' => $k, 'field_parent' => $v['parent'] ), array( 'field_id' => $v['field_id'] ) );
+			$update = $wpdb->update( $this->field_table_name, array( 'field_sequence' => $k, 'field_parent' => $v['parent'] ), array( 'field_id' => $v['field_id'] ) );
 		}
-		
-		return;
 
-		die(1);
+		wp_die();
 	}
-	
+
 	/**
 	 * The jQuery create field callback
-	 * 
+	 *
 	 * @since 1.9
 	 */
 	public function ajax_create_field() {
 		global $wpdb;
-		
+
 		$data = array();
 		$field_options = $field_validation = '';
-		
+
 		foreach ( $_REQUEST['data'] as $k ) {
 			$data[ $k['name'] ] = $k['value'];
 		}
-		
+
 		check_ajax_referer( 'create-field-' . $data['form_id'], 'nonce' );
-		
+
 		$form_id 	= absint( $data['form_id'] );
 		$field_key 	= sanitize_title( $_REQUEST['field_type'] );
 		$field_name = esc_html( $_REQUEST['field_type'] );
 		$field_type = strtolower( sanitize_title( $_REQUEST['field_type'] ) );
-		
+
 		// Set defaults for validation
 		switch ( $field_type ) {
 			case 'select' :
@@ -1005,37 +1057,37 @@ class Visual_Form_Builder{
 			case 'checkbox' :
 				$field_options = serialize( array( 'Option 1', 'Option 2', 'Option 3' ) );
 			break;
-			
+
 			case 'email' :
 			case 'url' :
 			case 'phone' :
 				$field_validation = $field_type;
 			break;
-			
+
 			case 'currency' :
 				$field_validation = 'number';
 			break;
-			
+
 			case 'number' :
 				$field_validation = 'digits';
 			break;
-			
+
 			case 'time' :
 				$field_validation = 'time-12';
 			break;
-			
+
 			case 'file-upload' :
 				$field_options = serialize( array( 'png|jpe?g|gif' ) );
 			break;
 		}
-		
-		
+
+
 		// Get the last row's sequence that isn't a Verification
 		$sequence_last_row = $wpdb->get_var( $wpdb->prepare( "SELECT field_sequence FROM $this->field_table_name WHERE form_id = %d AND field_type = 'verification' ORDER BY field_sequence DESC LIMIT 1", $form_id ) );
-		
+
 		// If it's not the first for this form, add 1
 		$field_sequence = ( !empty( $sequence_last_row ) ) ? $sequence_last_row : 0;
-	
+
 		$newdata = array(
 			'form_id' 			=> $form_id,
 			'field_key' 		=> $field_key,
@@ -1045,111 +1097,111 @@ class Visual_Form_Builder{
 			'field_sequence' 	=> $field_sequence,
 			'field_validation' 	=> $field_validation
 		);
-		
+
 		// Create the field
 		$wpdb->insert( $this->field_table_name, $newdata );
 		$insert_id = $wpdb->insert_id;
-		
-		// VIP fields			
+
+		// VIP fields
 		$vip_fields = array( 'verification', 'secret', 'submit' );
-		
-		// Move the VIPs			
+
+		// Move the VIPs
 		foreach ( $vip_fields as $update ) {
 			$field_sequence++;
 			$where = array(
 				'form_id' 		=> absint( $data['form_id'] ),
 				'field_type' 	=> $update
-			);				
+			);
 			$wpdb->update( $this->field_table_name, array( 'field_sequence' => $field_sequence ), $where );
-			
+
 		}
-		
+
 		echo $this->field_output( $data['form_id'], $insert_id );
-		
+
 		die(1);
 	}
-	
+
 	/**
 	 * The jQuery delete field callback
-	 * 
+	 *
 	 * @since 1.9
 	 */
 	public function ajax_delete_field() {
 		global $wpdb;
 
-		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] == 'toplevel_page_visual-form-builder' && isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'visual_form_builder_delete_field' ) {
+		if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'visual_form_builder_delete_field' ) {
 			$form_id = absint( $_REQUEST['form'] );
 			$field_id = absint( $_REQUEST['field'] );
-			
+
 			check_ajax_referer( 'delete-field-' . $form_id, 'nonce' );
-			
+
 			if ( isset( $_REQUEST['child_ids'] ) ) {
 				foreach ( $_REQUEST['child_ids'] as $children ) {
 					$parent = absint( $_REQUEST['parent_id'] );
-					
+
 					// Update each child item with the new parent ID
 					$wpdb->update( $this->field_table_name, array( 'field_parent' => $parent ), array( 'field_id' => $children ) );
 				}
 			}
-			
+
 			// Delete the field
 			$wpdb->query( $wpdb->prepare( "DELETE FROM $this->field_table_name WHERE field_id = %d", $field_id ) );
 		}
-		
+
 		die(1);
 	}
-	
+
 	/**
 	 * The jQuery form settings callback
-	 * 
+	 *
 	 * @since 2.2
 	 */
 	public function ajax_form_settings() {
 		global $current_user;
 		get_currentuserinfo();
-		
+
 		if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'visual_form_builder_form_settings' ) {
 			$form_id 	= absint( $_REQUEST['form'] );
 			$status 	= isset( $_REQUEST['status'] ) ? $_REQUEST['status'] : 'opened';
 			$accordion 	= isset( $_REQUEST['accordion'] ) ? $_REQUEST['accordion'] : 'general-settings';
 			$user_id 	= $current_user->ID;
-			
+
 			$form_settings = get_user_meta( $user_id, 'vfb-form-settings', true );
-			
+
 			$array = array(
 				'form_setting_tab' 	=> $status,
 				'setting_accordion' => $accordion
 			);
-			
-			// Set defaults if meta key doesn't exist	
+
+			// Set defaults if meta key doesn't exist
 			if ( !$form_settings || $form_settings == '' ) {
 				$meta_value[ $form_id ] = $array;
-				
+
 				update_user_meta( $user_id, 'vfb-form-settings', $meta_value );
 			}
 			else {
 				$form_settings[ $form_id ] = $array;
-				
+
 				update_user_meta( $user_id, 'vfb-form-settings', $form_settings );
 			}
 		}
-		
+
 		die(1);
 	}
 
 	/**
 	 * Display the additional media button
-	 * 
+	 *
 	 * Used for inserting the form shortcode with desired form ID
 	 *
 	 * @since 2.3
 	 */
 	public function ajax_media_button(){
 		global $wpdb;
-		
+
 		// Sanitize the sql orderby
 		$order = sanitize_sql_orderby( 'form_id ASC' );
-		
+
 		// Build our forms as an object
 		$forms = $wpdb->get_results( "SELECT form_id, form_title FROM $this->form_table_name ORDER BY $order" );
 	?>
@@ -1157,9 +1209,9 @@ class Visual_Form_Builder{
 	jQuery(document).ready(function($) {
 	    $( '#add_vfb_form' ).submit(function(e){
 	        e.preventDefault();
-	        
+
 	        window.send_to_editor( '[vfb id=' + $( '#vfb_forms' ).val() + ']' );
-	        
+
 	        window.tb_remove();
 	    });
 	});
@@ -1179,141 +1231,56 @@ class Visual_Form_Builder{
 	<?php
 		die(1);
 	}
-			
+
 	/**
 	 * All Forms output in admin
-	 * 
+	 *
 	 * @since 2.5
 	 */
 	public function all_forms() {
-		global $wpdb;
-		
+		global $wpdb, $forms_list;
+
 		$order = sanitize_sql_orderby( 'form_title ASC' );
-		
+
 		$where = apply_filters( 'vfb_pre_get_forms', '' );
-		$forms = $wpdb->get_results( "SELECT * FROM $this->form_table_name WHERE 1=1 $where ORDER BY $order" );
-		
-		$a = array();
-		
-		if ( $forms ) :
-			// Loop through each for and build the tabs
-			foreach ( $forms as $form ) {
-				$form_id 		= $form->form_id;
-				$form_title 	= stripslashes( $form->form_title );
-				$entries_count 	= $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $this->entries_table_name WHERE form_id = %d", $form_id ) );
-				$sort 			= substr( strtoupper( $form_title ), 0, 1 );
-				
-				if ( preg_match( '/[0-9]/i', $sort ) )
-					$sort = '0-9';
-				
-				$a[ $sort ][] = array(
-					'id'			=> $form_id,
-					'title' 		=> $form_title,
-					'entries_count'	=> $entries_count
-				);
-						
-			}
-		?>
-		<div class="vfb-form-alpha-list">
-			<hr>
-				<?php
-				foreach ( $a as $alpha => $value ) :
-				?>
-				<div class="vfb-form-alpha-group">
-					<h2 class='letter'><?php echo $alpha; ?></h2>
-					<?php
-					foreach ( $value as $alphaForm ) {
-					?>
-					
-					<div class="vfb-form-alpha-form">
-						<h3><a class="" href="<?php echo esc_url( add_query_arg( array( 'form' => $alphaForm['id'] ), admin_url( 'admin.php?page=visual-form-builder' ) ) ); ?>"><?php echo $alphaForm['title']; ?></a></h3>
-						<div class="vfb-publishing-actions">
-                            <p>
-                            	<a class="" href="<?php echo esc_url( add_query_arg( array( 'form' => $alphaForm['id'] ), admin_url( 'admin.php?page=visual-form-builder' ) ) ); ?>">
-                            	<strong><?php _e( 'Edit Form', 'visual-form-builder' ); ?></strong>
-                            	</a> |
-                            	<a class="submitdelete menu-delete" href="<?php echo esc_url( wp_nonce_url( admin_url('admin.php?page=visual-form-builder&amp;action=delete_form&amp;form=' . $alphaForm['id'] ), 'delete-form-' . $alphaForm['id'] ) ); ?>" class=""><?php _e( 'Delete' , 'visual-form-builder'); ?></a> |
-                            	<a href="<?php echo esc_url( add_query_arg( array( 'form-filter' => $alphaForm['id'] ), admin_url( 'admin.php?page=vfb-entries' ) ) ); ?>"><?php echo $alphaForm['entries_count']; ?> Entries</a>
-                            
-                            </p>                            
-						</div> <!-- .vfb-publishing-actions -->
-					</div>
-					<div class="clear"></div>
-					<?php	
-					}
-			?>
-				</div> <!-- .vfb-form-alpha-group -->
-				<hr>
-			<?php endforeach; ?>
-		</div> <!-- .vfb-form-alpha-list -->
-		
-		<?php else : ?>
-			<div class="vfb-form-alpha-list"><h3 id="vfb-no-forms">You currently don't have any forms.  Click on the <a href="<?php echo esc_url( admin_url( 'admin.php?page=vfb-add-new' ) ); ?>">New Form</a> button to get started.</h3></div>
-		<?php endif; ?>
-		
-		<div id="vfb-upgrade-column">
-			<div class="vfb-pro-upgrade"><!-- VFB Pro Upgrade -->
-		    	<h3>Upgrade to <a href="http://vfb.matthewmuro.com">Visual Form Builder Pro</a> for only $10</h3>
-		        <p>Attention Visual Form Builder users!  I am happy to announce <a href="http://vfb.matthewmuro.com">Visual Form Builder Pro</a>, available now for only <strong>$10</strong>.</p>
-		        <h3><?php _e( 'New Features of Visual Form Builder Pro' , 'visual-form-builder'); ?></h3>
-		        <ul>
-		        	<li><a href="http://vfb.matthewmuro.com/#addons"><?php _e( 'Now with Add-Ons' , 'visual-form-builder'); ?></a></li>
-		            <li><?php _e( 'Akismet Support' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Optional SPAM Verification' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Nested Drag and Drop' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Conditional Logic' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( '10+ new Form Fields' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Complete Entries Management' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Import/Export' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Quality HTML Email Template' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Plain Text Email Option' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Email Designer' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Analytics' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Data &amp; Form Migration' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Scheduling' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Limit Form Entries' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Simple PayPal Integration' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Form Paging' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Live Preview' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Custom Capabilities' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'No License Key' , 'visual-form-builder'); ?></li>
-		            <li><?php _e( 'Automatic Updates' , 'visual-form-builder'); ?></li>
-		        </ul>
-		        
-		        <p><a href="http://matthewmuro.com/2012/02/07/introducing-visual-form-builder-pro/"><?php _e( 'Learn more about some of these features' , 'visual-form-builder'); ?></a>.</p>
-		        <p class="vfb-pro-call-to-action"><a href="http://visualformbuilder.fetchapp.com/sell/dahdaeng/ppc"><span class="cta-sign-up"><?php _e( 'Buy Now' , 'visual-form-builder'); ?></span><span class="cta-price"><?php _e( 'Only $10' , 'visual-form-builder'); ?></span></a></p>
-		    </div> <!-- .vfb-pro-upgrade -->
-		    
-	   		<h3><?php _e( 'Help Promote Visual Form Builder' , 'visual-form-builder'); ?></h3>
-	        <ul id="promote-vfb">
-	        	<li id="twitter"><?php _e( 'Follow me on Twitter' , 'visual-form-builder'); ?>: <a href="http://twitter.com/#!/matthewmuro">@matthewmuro</a></li>
-	            <li id="star"><a href="http://wordpress.org/extend/plugins/visual-form-builder/"><?php _e( 'Rate Visual Form Builder on WordPress.org' , 'visual-form-builder'); ?></a></li>
-	            <li id="paypal">
-	                <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=G87A9UN9CLPH4&lc=US&item_name=Visual%20Form%20Builder&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" width="74" height="21"></a>
-	            </li>
-	        </ul>
-	    </div>
+		$forms = $wpdb->get_results( "SELECT form_id, form_title FROM $this->form_table_name WHERE 1=1 $where ORDER BY $order" );
+
+		if ( !$forms ) :
+			echo '<div class="vfb-form-alpha-list"><h3 id="vfb-no-forms">You currently do not have any forms.  <a href="' . esc_url( admin_url( 'admin.php?page=vfb-add-new' ) ) . '">Click here to get started</a>.</h3></div>';
+			return;
+		endif;
+
+		echo '<form id="forms-filter" method="post" action="">';
+
+		$forms_list->prepare_items();
+
+    	$forms_list->search_box( 'search', 'search_id' );
+    	$forms_list->display();
+
+		echo '</form>';
+?>
+
 	<?php
 	}
 
 	/**
 	 * Build field output in admin
-	 * 
+	 *
 	 * @since 1.9
 	 */
 	public function field_output( $form_nav_selected_id, $field_id = NULL ) {
 		global $wpdb;
-		
+
 		$field_where = ( isset( $field_id ) && !is_null( $field_id ) ) ? "AND field_id = $field_id" : '';
 		// Display all fields for the selected form
 		$fields = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $this->field_table_name WHERE form_id = %d $field_where ORDER BY field_sequence ASC", $form_nav_selected_id ) );
-		
+
 		$depth = 1;
 		$parent = $last = 0;
 		ob_start();
-		
+
 		// Loop through each field and display
-		foreach ( $fields as $field ) :		
+		foreach ( $fields as $field ) :
 			// If we are at the root level
 			if ( !$field->field_parent && $depth > 1 ) {
 				// If we've been down a level, close out the list
@@ -1321,14 +1288,14 @@ class Visual_Form_Builder{
 					echo '</li></ul>';
 					$depth--;
 				}
-				
+
 				// Close out the root item
 				echo '</li>';
 			}
 			// first item of <ul>, so move down a level
 			elseif ( $field->field_parent && $field->field_parent == $last ) {
 				echo '<ul class="parent">';
-				$depth++;				
+				$depth++;
 			}
 			// Close up a <ul> and move up a level
 			elseif ( $field->field_parent && $field->field_parent != $parent ) {
@@ -1338,14 +1305,14 @@ class Visual_Form_Builder{
 			// Same level so close list item
 			elseif ( $field->field_parent && $field->field_parent == $parent )
 				echo '</li>';
-			
-			// Store item ID and parent ID to test for nesting										
+
+			// Store item ID and parent ID to test for nesting
 			$last = $field->field_id;
 			$parent = $field->field_parent;
 	?>
-<li id="form_item_<?php echo $field->field_id; ?>" class="form-item<?php echo ( in_array( $field->field_type, array( 'submit', 'secret', 'verification' ) ) ) ? ' ui-state-disabled' : ''; ?><?php echo ( !in_array( $field->field_type, array( 'fieldset', 'section', 'verification' ) ) ) ? ' ui-nestedSortable-no-nesting' : ''; ?>">
+<li id="form_item_<?php echo $field->field_id; ?>" class="form-item<?php echo ( in_array( $field->field_type, array( 'submit', 'secret', 'verification' ) ) ) ? ' ui-state-disabled' : ''; ?><?php echo ( !in_array( $field->field_type, array( 'fieldset', 'section', 'verification' ) ) ) ? ' mjs-nestedSortable-no-nesting' : ''; ?>">
 		<dl class="menu-item-bar">
-			<dt class="menu-item-handle<?php echo ( $field->field_type == 'fieldset' ) ? ' fieldset' : ''; ?>">
+			<dt class="vfb-menu-item-handle vfb-menu-item-type-<?php echo esc_attr( $field->field_type ); ?>">
 				<span class="item-title"><?php echo stripslashes( esc_attr( $field->field_name ) ); ?><?php echo ( $field->field_required == 'yes' ) ? ' <span class="is-field-required">*</span>' : ''; ?></span>
                 <span class="item-controls">
 					<span class="item-type"><?php echo strtoupper( str_replace( '-', ' ', $field->field_type ) ); ?></span>
@@ -1356,10 +1323,10 @@ class Visual_Form_Builder{
 
 		<div id="form-item-settings-<?php echo $field->field_id; ?>" class="menu-item-settings field-type-<?php echo $field->field_type; ?>" style="display: none;">
 			<?php if ( in_array( $field->field_type, array( 'fieldset', 'section', 'verification' ) ) ) : ?>
-			
+
 				<p class="description description-wide">
 					<label for="edit-form-item-name-<?php echo $field->field_id; ?>"><?php echo ( in_array( $field->field_type, array( 'fieldset', 'verification' ) ) ) ? 'Legend' : 'Name'; ?>
-                    <span class="vfb-tooltip" rel="For Fieldsets, a Legend is simply the name of that group. Use general terms that describe the fields included in this Fieldset." title="About Legend">(?)</span>
+                    <span class="vfb-tooltip" rel="<?php esc_attr_e( 'For Fieldsets, a Legend is simply the name of that group. Use general terms that describe the fields included in this Fieldset.', 'visual-form-builder' ); ?>" title="<?php esc_attr_e( 'About Legend', 'visual-form-builder' ); ?>">(?)</span>
                         <br />
 						<input type="text" value="<?php echo stripslashes( esc_attr( $field->field_name ) ); ?>" name="field_name-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-name-<?php echo $field->field_id; ?>" maxlength="255" />
 					</label>
@@ -1367,18 +1334,18 @@ class Visual_Form_Builder{
                 <p class="description description-wide">
                     <label for="edit-form-item-css-<?php echo $field->field_id; ?>">
                         <?php _e( 'CSS Classes' , 'visual-form-builder'); ?>
-                        <span class="vfb-tooltip" rel="For each field, you can insert your own CSS class names which can be used in your own stylesheets." title="About CSS Classes">(?)</span>
+                        <span class="vfb-tooltip" rel="<?php esc_attr_e( 'For each field, you can insert your own CSS class names which can be used in your own stylesheets.', 'visual-form-builder' ); ?>" title="<?php esc_attr_e( 'About CSS Classes', 'visual-form-builder' ); ?>">(?)</span>
                         <br />
                         <input type="text" value="<?php echo stripslashes( esc_attr( $field->field_css ) ); ?>" name="field_css-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-css-<?php echo $field->field_id; ?>" />
                     </label>
                 </p>
-			
+
 			<?php elseif( $field->field_type == 'instructions' ) : ?>
 				<!-- Instructions -->
 				<p class="description description-wide">
 					<label for="edit-form-item-name-<?php echo $field->field_id; ?>">
 							<?php _e( 'Name' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About Name" rel="A field's name is the most visible and direct way to describe what that field is for.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Name', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( "A field's name is the most visible and direct way to describe what that field is for.", 'visual-form-builder' ); ?>">(?)</span>
                             <br />
 							<input type="text" value="<?php echo stripslashes( esc_attr( $field->field_name ) ); ?>" name="field_name-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-name-<?php echo $field->field_id; ?>" maxlength="255" />
 					</label>
@@ -1386,19 +1353,19 @@ class Visual_Form_Builder{
 				<p class="description description-wide">
 					<label for="edit-form-item-description-<?php echo $field->field_id; ?>">
                     	<?php _e( 'Description (HTML tags allowed)', 'visual-form-builder' ); ?>
-                    	<span class="vfb-tooltip" title="About Instructions Description" rel="The Instructions field allows for long form explanations, typically seen at the beginning of Fieldsets or Sections. HTML tags are allowed.">(?)</span>
+                    	<span class="vfb-tooltip" title="<?php esc_attr_e( 'About Instructions Description', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'The Instructions field allows for long form explanations, typically seen at the beginning of Fieldsets or Sections. HTML tags are allowed.', 'visual-form-builder' ); ?>">(?)</span>
                         <br />
 						<textarea name="field_description-<?php echo $field->field_id; ?>" class="widefat edit-menu-item-description" cols="20" rows="3" id="edit-form-item-description-<?php echo $field->field_id; ?>" /><?php echo stripslashes( $field->field_description ); ?></textarea>
 					</label>
 				</p>
-			
+
 			<?php else: ?>
-				
+
 				<!-- Name -->
 				<p class="description description-wide">
 					<label for="edit-form-item-name-<?php echo $field->field_id; ?>">
 						<?php _e( 'Name' , 'visual-form-builder'); ?>
-                        <span class="vfb-tooltip" title="About Name" rel="A field's name is the most visible and direct way to describe what that field is for.">(?)</span>
+                        <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Name', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( "A field's name is the most visible and direct way to describe what that field is for.", 'visual-form-builder' ); ?>">(?)</span>
                         <br />
 						<input type="text" value="<?php echo stripslashes( esc_attr( $field->field_name ) ); ?>" name="field_name-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-name-<?php echo $field->field_id; ?>" maxlength="255" />
 					</label>
@@ -1407,8 +1374,8 @@ class Visual_Form_Builder{
 					<!-- CSS Classes -->
                     <p class="description description-wide">
                         <label for="edit-form-item-css-<?php echo $field->field_id; ?>">
-                            <?php _e( 'CSS Classes' , 'visual-form-builder-pro'); ?>
-                            <span class="vfb-tooltip" rel="For each field, you can insert your own CSS class names which can be used in your own stylesheets." title="About CSS Classes">(?)</span>
+                            <?php _e( 'CSS Classes' , 'visual-form-builder'); ?>
+                            <span class="vfb-tooltip" rel="<?php esc_attr_e( 'For each field, you can insert your own CSS class names which can be used in your own stylesheets.', 'visual-form-builder' ); ?>" title="<?php esc_attr_e( 'About CSS Classes', 'visual-form-builder' ); ?>">(?)</span>
                             <br />
                             <input type="text" value="<?php echo stripslashes( esc_attr( $field->field_css ) ); ?>" name="field_css-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-css-<?php echo $field->field_id; ?>" />
                         </label>
@@ -1418,19 +1385,19 @@ class Visual_Form_Builder{
 					<p class="description description-wide">
 						<label for="edit-form-item-description-<?php echo $field->field_id; ?>">
 							<?php _e( 'Description' , 'visual-form-builder'); ?>
-                             <span class="vfb-tooltip" title="About Description" rel="A description is an optional piece of text that further explains the meaning of this field. Descriptions are displayed below the field. HTML tags are allowed.">(?)</span>
+                             <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Description', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'A description is an optional piece of text that further explains the meaning of this field. Descriptions are displayed below the field. HTML tags are allowed.', 'visual-form-builder' ); ?>">(?)</span>
                             <br />
 							<textarea name="field_description-<?php echo $field->field_id; ?>" class="widefat edit-menu-item-description" cols="20" rows="3" id="edit-form-item-description-<?php echo $field->field_id; ?>" /><?php echo stripslashes( $field->field_description ); ?></textarea>
 						</label>
 					</p>
-					
+
 					<?php
 						// Display the Options input only for radio, checkbox, and select fields
 						if ( in_array( $field->field_type, array( 'radio', 'checkbox', 'select' ) ) ) : ?>
 						<!-- Options -->
 						<p class="description description-wide">
 							<?php _e( 'Options' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About Options" rel="This property allows you to set predefined options to be selected by the user.  Use the plus and minus buttons to add and delete options.  At least one option must exist.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Options', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'This property allows you to set predefined options to be selected by the user.  Use the plus and minus buttons to add and delete options.  At least one option must exist.', 'visual-form-builder' ); ?>">(?)</span>
                             <br />
 						<?php
 							// If the options field isn't empty, unserialize and build array
@@ -1441,10 +1408,10 @@ class Visual_Form_Builder{
 							// Otherwise, present some default options
 							else
 								$opts_vals = array( 'Option 1', 'Option 2', 'Option 3' );
-							
+
 							// Basic count to keep track of multiple options
 							$count = 1;
-							
+
 							// Loop through the options
 							foreach ( $opts_vals as $options ) {
 						?>
@@ -1453,10 +1420,10 @@ class Visual_Form_Builder{
 								<input type="radio" value="<?php echo esc_attr( $count ); ?>" name="field_default-<?php echo $field->field_id; ?>" <?php checked( $field->field_default, $count ); ?> />
 								<input type="text" value="<?php echo stripslashes( esc_attr( $options ) ); ?>" name="field_options-<?php echo $field->field_id; ?>[]" class="widefat" id="edit-form-item-options-<?php echo $field->field_id . "-$count"; ?>" />
 							</label>
-							
-							<a href="#" class="addOption" title="Add an Option">Add</a> <a href="#" class="deleteOption" title="Delete Option">Delete</a>
+
+							<a href="#" class="addOption" title="Add an Option"><?php _e( 'Add', 'visual-form-builder' ); ?></a> <a href="#" class="deleteOption" title="Delete Option"><?php _e( 'Delete', 'visual-form-builder' ); ?></a>
 						</div>
-						   <?php 
+						   <?php
 								$count++;
 							}
 							?>
@@ -1466,7 +1433,7 @@ class Visual_Form_Builder{
 						unset( $opts_vals );
 						endif;
 					?>
-                    
+
 					<?php
 						// Display the Options input only for radio, checkbox, select, and autocomplete fields
 						if ( in_array( $field->field_type, array( 'file-upload' ) ) ) :
@@ -1475,7 +1442,7 @@ class Visual_Form_Builder{
 						<p class="description description-wide">
                             <?php
 							$opts_vals = array( '' );
-							
+
 							// If the options field isn't empty, unserialize and build array
 							if ( !empty( $field->field_options ) ) {
 								if ( is_serialized( $field->field_options ) )
@@ -1487,7 +1454,7 @@ class Visual_Form_Builder{
 						?>
 							<label for="edit-form-item-options-<?php echo $field->field_id; ?>">
 								<?php _e( 'Accepted File Extensions' , 'visual-form-builder'); ?>
-                                <span class="vfb-tooltip" title="About Accepted File Extensions" rel="Control the types of files allowed.  Enter extensions without periods and separate multiples using the pipe character ( | ).">(?)</span>
+                                <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Accepted File Extensions', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Control the types of files allowed.  Enter extensions without periods and separate multiples using the pipe character ( | ).', 'visual-form-builder' ); ?>">(?)</span>
                         		<br />
                                 <input type="text" value="<?php echo stripslashes( esc_attr( $options ) ); ?>" name="field_options-<?php echo $field->field_id; ?>[]" class="widefat" id="edit-form-item-options-<?php echo $field->field_id; ?>" />
 							</label>
@@ -1502,14 +1469,17 @@ class Visual_Form_Builder{
 					<p class="description description-thin">
 						<label for="edit-form-item-validation">
 							<?php _e( 'Validation' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About Validation" rel="Ensures user-entered data is formatted properly. For more information on Validation, refer to the Help tab at the top of this page.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Validation', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Ensures user-entered data is formatted properly. For more information on Validation, refer to the Help tab at the top of this page.', 'visual-form-builder' ); ?>">(?)</span>
                             <br />
-						   
-						   <?php if ( in_array( $field->field_type , array( 'text', 'time' ) ) ) : ?>
+
+						   <?php if ( in_array( $field->field_type , array( 'text', 'time', 'number' ) ) ) : ?>
 							   <select name="field_validation-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-validation-<?php echo $field->field_id; ?>">
 							   		<?php if ( $field->field_type == 'time' ) : ?>
 									<option value="time-12" <?php selected( $field->field_validation, 'time-12' ); ?>><?php _e( '12 Hour Format' , 'visual-form-builder'); ?></option>
 									<option value="time-24" <?php selected( $field->field_validation, 'time-24' ); ?>><?php _e( '24 Hour Format' , 'visual-form-builder'); ?></option>
+									<?php elseif ( in_array( $field->field_type, array( 'number' ) ) ) : ?>
+	                                <option value="number" <?php selected( $field->field_validation, 'number' ); ?>><?php _e( 'Number' , 'visual-form-builder'); ?></option>
+									<option value="digits" <?php selected( $field->field_validation, 'digits' ); ?>><?php _e( 'Digits' , 'visual-form-builder'); ?></option>
 									<?php else : ?>
 									<option value="" <?php selected( $field->field_validation, '' ); ?>><?php _e( 'None' , 'visual-form-builder'); ?></option>
 									<option value="email" <?php selected( $field->field_validation, 'email' ); ?>><?php _e( 'Email' , 'visual-form-builder'); ?></option>
@@ -1522,35 +1492,35 @@ class Visual_Form_Builder{
 							   </select>
 						   <?php else :
 							   $field_validation = '';
-							   
+
 							   switch ( $field->field_type ) {
 								   case 'email' :
 									case 'url' :
 									case 'phone' :
 										$field_validation = $field->field_type;
 									break;
-									
+
 									case 'currency' :
 										$field_validation = 'number';
 									break;
-									
+
 									case 'number' :
 										$field_validation = 'digits';
 									break;
 							   }
-							   
+
 						   ?>
 						   <input type="text" class="widefat" name="field_validation-<?php echo $field->field_id; ?>" value="<?php echo $field_validation; ?>" readonly="readonly" />
 						   <?php endif; ?>
-						   
+
 						</label>
 					</p>
-					
+
 					<!-- Required -->
 					<p class="field-link-target description description-thin">
 						<label for="edit-form-item-required">
 							<?php _e( 'Required' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About Required" rel="Requires the field to be completed before the form is submitted. By default, all fields are set to No.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Required', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Requires the field to be completed before the form is submitted. By default, all fields are set to No.', 'visual-form-builder' ); ?>">(?)</span>
                             <br />
 							<select name="field_required-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-required-<?php echo $field->field_id; ?>">
 								<option value="no" <?php selected( $field->field_required, 'no' ); ?>><?php _e( 'No' , 'visual-form-builder'); ?></option>
@@ -1558,13 +1528,13 @@ class Visual_Form_Builder{
 							</select>
 						</label>
 					</p>
-				   
+
 					<?php if ( !in_array( $field->field_type, array( 'radio', 'checkbox', 'time' ) ) ) : ?>
 						<!-- Size -->
 						<p class="description description-thin">
 							<label for="edit-form-item-size">
 								<?php _e( 'Size' , 'visual-form-builder'); ?>
-                                <span class="vfb-tooltip" title="About Size" rel="Control the size of the field.  By default, all fields are set to Medium.">(?)</span>
+                                <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Size', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Control the size of the field.  By default, all fields are set to Medium.', 'visual-form-builder' ); ?>">(?)</span>
                                 <br />
 								<select name="field_size-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-size-<?php echo $field->field_id; ?>">
                                 	<option value="small" <?php selected( $field->field_size, 'small' ); ?>><?php _e( 'Small' , 'visual-form-builder'); ?></option>
@@ -1579,7 +1549,7 @@ class Visual_Form_Builder{
 						<p class="description description-thin">
 							<label for="edit-form-item-size">
 								<?php _e( 'Options Layout' , 'visual-form-builder'); ?>
-                                <span class="vfb-tooltip" title="About Options Layout" rel="Control the layout of radio buttons or checkboxes.  By default, options are arranged in One Column.">(?)</span>
+                                <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Options Layout', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Control the layout of radio buttons or checkboxes.  By default, options are arranged in One Column.', 'visual-form-builder' ); ?>">(?)</span>
                                 <br />
 								<select name="field_size-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-size-<?php echo $field->field_id; ?>"<?php echo ( $field->field_type == 'time' ) ? ' disabled="disabled"' : ''; ?>>
 									<option value="" <?php selected( $field->field_size, '' ); ?>><?php _e( 'One Column' , 'visual-form-builder'); ?></option>
@@ -1589,16 +1559,16 @@ class Visual_Form_Builder{
 								</select>
 							</label>
 						</p>
-                    
+
 					<?php endif; ?>
 						<!-- Field Layout -->
 						<p class="description description-thin">
 							<label for="edit-form-item-layout">
 								<?php _e( 'Field Layout' , 'visual-form-builder'); ?>
-                                <span class="vfb-tooltip" title="About Field Layout" rel="Used to create advanced layouts. Align fields side by side in various configurations.">(?)</span>
+                                <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Field Layout', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Used to create advanced layouts. Align fields side by side in various configurations.', 'visual-form-builder' ); ?>">(?)</span>
                                 <br />
 								<select name="field_layout-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-layout-<?php echo $field->field_id; ?>">
-                                	
+
 									<option value="" <?php selected( $field->field_layout, '' ); ?>><?php _e( 'Default' , 'visual-form-builder'); ?></option>
                                     <optgroup label="------------">
                                     <option value="left-half" <?php selected( $field->field_layout, 'left-half' ); ?>><?php _e( 'Left Half' , 'visual-form-builder'); ?></option>
@@ -1621,7 +1591,7 @@ class Visual_Form_Builder{
 					<p class="description description-wide">
                         <label for="edit-form-item-default-<?php echo $field->field_id; ?>">
                             <?php _e( 'Default Value' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About Default Value" rel="Set a default value that will be inserted automatically.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Default Value', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Set a default value that will be inserted automatically.', 'visual-form-builder' ); ?>">(?)</span>
                         	<br />
                             <input type="text" value="<?php echo stripslashes( esc_attr( $field->field_default ) ); ?>" name="field_default-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-default-<?php echo $field->field_id; ?>" maxlength="255" />
                         </label>
@@ -1631,7 +1601,7 @@ class Visual_Form_Builder{
 					<p class="description description-wide">
                         <label for="edit-form-item-default-<?php echo $field->field_id; ?>">
                             <?php _e( 'Default Country' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About Default Country" rel="Select the country you would like to be displayed by default.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About Default Country', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'Select the country you would like to be displayed by default.', 'visual-form-builder' ); ?>">(?)</span>
                         	<br />
                             <select name="field_default-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-default-<?php echo $field->field_id; ?>">
                             <?php
@@ -1647,7 +1617,7 @@ class Visual_Form_Builder{
 					<p class="description description-wide">
                         <label for="edit-form-item-css-<?php echo $field->field_id; ?>">
                             <?php _e( 'CSS Classes' , 'visual-form-builder'); ?>
-                            <span class="vfb-tooltip" title="About CSS Classes" rel="For each field, you can insert your own CSS class names which can be used in your own stylesheets.">(?)</span>
+                            <span class="vfb-tooltip" title="<?php esc_attr_e( 'About CSS Classes', 'visual-form-builder' ); ?>" rel="<?php esc_attr_e( 'For each field, you can insert your own CSS class names which can be used in your own stylesheets.', 'visual-form-builder' ); ?>">(?)</span>
                             <br />
                             <input type="text" value="<?php echo stripslashes( esc_attr( $field->field_css ) ); ?>" name="field_css-<?php echo $field->field_id; ?>" class="widefat" id="edit-form-item-css-<?php echo $field->field_id; ?>" maxlength="255" />
                         </label>
@@ -1655,18 +1625,18 @@ class Visual_Form_Builder{
 
 				<?php endif; ?>
 			<?php endif; ?>
-			
+
 			<?php if ( !in_array( $field->field_type, array( 'verification', 'secret', 'submit' ) ) ) : ?>
 				<div class="menu-item-actions description-wide submitbox">
 					<a href="<?php echo esc_url( wp_nonce_url( admin_url('admin.php?page=visual-form-builder&amp;action=delete_field&amp;form=' . $form_nav_selected_id . '&amp;field=' . $field->field_id ), 'delete-field-' . $form_nav_selected_id ) ); ?>" class="item-delete submitdelete deletion"><?php _e( 'Remove' , 'visual-form-builder'); ?></a>
 				</div>
 			<?php endif; ?>
-			
+
 		<input type="hidden" name="field_id[<?php echo $field->field_id; ?>]" value="<?php echo $field->field_id; ?>" />
 		</div>
 	<?php
 		endforeach;
-		
+
 		// This assures all of the <ul> and <li> are closed
 		if ( $depth > 1 ) {
 			while( $depth > 1 ) {
@@ -1675,15 +1645,15 @@ class Visual_Form_Builder{
 				$depth--;
 			}
 		}
-		
+
 		// Close out last item
 		echo '</li>';
 		echo ob_get_clean();
 	}
-	
+
 	/**
 	 * Display admin notices
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function admin_notices(){
@@ -1702,131 +1672,232 @@ class Visual_Form_Builder{
 					echo '<div id="message" class="updated"><p>' . __( 'The form has been successfully duplicated.' , 'visual-form-builder') . '</p></div>';
 				break;
 			}
-			
+
 		}
 	}
 
 	/**
 	 * Add options page to Settings menu
-	 * 
-	 * 
+	 *
+	 *
 	 * @since 1.0
 	 * @uses add_options_page() Creates a menu item under the Settings menu.
 	 */
-	public function add_admin() {  
-		add_menu_page( __( 'Visual Form Builder', 'visual-form-builder' ), __( 'Visual Form Builder', 'visual-form-builder' ), 'manage_options', 'visual-form-builder', array( &$this, 'admin' ), plugins_url( 'visual-form-builder/images/vfb_icon.png' ) );
-		
+	public function add_admin() {
+		$current_pages = array();
+
+		$current_pages[ 'vfb' ] = add_menu_page( __( 'Visual Form Builder', 'visual-form-builder' ), __( 'Visual Form Builder', 'visual-form-builder' ), 'manage_options', 'visual-form-builder', array( &$this, 'admin' ), plugins_url( 'visual-form-builder/images/vfb_icon.png' ) );
+
 		add_submenu_page( 'visual-form-builder', __( 'Visual Form Builder', 'visual-form-builder' ), __( 'All Forms', 'visual-form-builder' ), 'manage_options', 'visual-form-builder', array( &$this, 'admin' ) );
-		add_submenu_page( 'visual-form-builder', __( 'Add New Form', 'visual-form-builder' ), __( 'Add New Form', 'visual-form-builder' ), 'manage_options', 'vfb-add-new', array( &$this, 'admin' ) );
-		add_submenu_page( 'visual-form-builder', __( 'Entries', 'visual-form-builder' ), __( 'Entries', 'visual-form-builder' ), 'manage_options', 'vfb-entries', array( &$this, 'admin' ) );
-		add_submenu_page( 'visual-form-builder', __( 'Export', 'visual-form-builder' ), __( 'Export', 'visual-form-builder' ), 'manage_options', 'vfb-export', array( &$this, 'admin' ) );
+		$current_pages[ 'vfb-add-new' ] = add_submenu_page( 'visual-form-builder', __( 'Add New Form', 'visual-form-builder' ), __( 'Add New Form', 'visual-form-builder' ), 'manage_options', 'vfb-add-new', array( &$this, 'admin_add_new' ) );
+		$current_pages[ 'vfb-entries' ] = add_submenu_page( 'visual-form-builder', __( 'Entries', 'visual-form-builder' ), __( 'Entries', 'visual-form-builder' ), 'manage_options', 'vfb-entries', array( &$this, 'admin_entries' ) );
+		$current_pages[ 'vfb-export' ] = add_submenu_page( 'visual-form-builder', __( 'Export', 'visual-form-builder' ), __( 'Export', 'visual-form-builder' ), 'manage_options', 'vfb-export', array( &$this, 'admin_export' ) );
+
+		// All plugin page load hooks
+		foreach ( $current_pages as $key => $page ) :
+			// Load the jQuery and CSS we need if we're on our plugin page
+			add_action( "load-$page", array( &$this, 'admin_scripts' ) );
+
+			// Load the Help tab on all pages
+			add_action( "load-$page", array( &$this, 'help' ) );
+		endforeach;
+
+		// Save pages array for filter/action use throughout plugin
+		$this->_admin_pages = $current_pages;
+
+		// Adds a Screen Options tab to the Entries screen
+		add_filter( 'load-' . $current_pages['vfb'], array( &$this, 'screen_options' ) );
+		add_filter( 'load-' . $current_pages['vfb-entries'], array( &$this, 'screen_options' ) );
+
+		// Add meta boxes to the form builder admin page
+		add_action( 'load-' . $current_pages['vfb'], array( &$this, 'add_meta_boxes' ) );
+
+		// Include Entries and Import files
+		add_action( 'load-' . $current_pages['vfb-entries'], array( &$this, 'includes' ) );
+
+		add_action( 'load-' . $current_pages['vfb'], array( &$this, 'include_forms_list' ) );
 	}
-	
+
+	/**
+	 * Display Add New Form page
+	 *
+	 *
+	 * @since 2.7.2
+	 */
+	public function admin_add_new() {
+?>
+	<div class="wrap">
+		<?php screen_icon( 'options-general' ); ?>
+		<h2><?php _e( 'Add New Form', 'visual-form-builder' ); ?></h2>
+<?php
+		include_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/admin-new-form.php' );
+?>
+	</div>
+<?php
+	}
+
+	/**
+	 * Display Entries
+	 *
+	 *
+	 * @since 2.7.2
+	 */
+	public function admin_entries() {
+		global $entries_list, $entries_detail;
+?>
+	<div class="wrap">
+		<?php screen_icon( 'options-general' ); ?>
+		<h2>
+			<?php _e( 'Entries', 'visual-form-builder' ); ?>
+<?php
+			// If searched, output the query
+			if ( isset( $_REQUEST['s'] ) && !empty( $_REQUEST['s'] ) )
+				echo '<span class="subtitle">' . sprintf( __( 'Search results for "%s"' , 'visual-form-builder' ), $_REQUEST['s'] );
+?>
+		</h2>
+<?php
+		if ( isset( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], array( 'view', 'edit', 'update_entry' ) ) ) :
+			$entries_detail->entries_detail();
+		else :
+			$entries_list->views();
+			$entries_list->prepare_items();
+?>
+    	<form id="entries-filter" method="post" action="">
+<?php
+        	$entries_list->search_box( 'search', 'search_id' );
+        	$entries_list->display();
+?>
+        </form>
+	<?php endif; ?>
+	</div>
+<?php
+	}
+
+	/**
+	 * Display Export
+	 *
+	 *
+	 * @since 2.7.2
+	 */
+	public function admin_export() {
+		global $export;
+?>
+	<div class="wrap">
+		<?php screen_icon( 'options-general' ); ?>
+		<h2><?php _e( 'Export', 'visual-form-builder' ); ?></h2>
+<?php
+		$export->display();
+?>
+	</div>
+<?php
+	}
+
 	/**
 	 * Builds the options settings page
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function admin() {
-		global $wpdb, $current_user, $entries_list, $entries_detail, $export;
-		
+		global $wpdb, $current_user;
+
 		get_currentuserinfo();
-		
+
 		// Save current user ID
 		$user_id = $current_user->ID;
-		
+
 		// Set variables depending on which tab is selected
 		$form_nav_selected_id = ( isset( $_REQUEST['form'] ) ) ? $_REQUEST['form'] : '0';
-		
-		// Page titles
-		$pages = array(
-    		'visual-form-builder'	=> __( 'Visual Form Builder', 'visual-form-builder' ),
-    		'vfb-add-new'     		=> __( 'Add New Form', 'visual-form-builder' ),
-    		'vfb-entries'     		=> __( 'Entries', 'visual-form-builder' ),
-    		'vfb-export'      		=> __( 'Export', 'visual-form-builder' )
-    	);
 	?>
 	<div class="wrap">
 		<?php screen_icon( 'options-general' ); ?>
 		<h2>
-		<?php
-			// Output the page titles
-			echo ( isset( $_REQUEST['page'] ) && array_key_exists( $_REQUEST['page'], $pages ) ) ? esc_html( $pages[ $_REQUEST['page' ] ] ) : '';
-			
+			<?php _e( 'Visual Form Builder', 'visual-form-builder' ); ?>
+<?php
+			// Add New link
+			echo sprintf( ' <a href="%1$s" class="add-new-h2">%2$s</a>', esc_url( admin_url( 'admin.php?page=vfb-add-new' ) ), esc_html( __( 'Add New', 'visual-form-builder' ) ) );
+
 			// If searched, output the query
-			echo ( isset( $_REQUEST['s'] ) && !empty( $_REQUEST['s'] ) && in_array( $_REQUEST['page'], array( 'vfb-entries' ) ) ) ? '<span class="subtitle">' . sprintf( __( 'Search results for "%s"' , 'visual-form-builder'), $_REQUEST['s'] ) : '';
-		?>
+			if ( isset( $_REQUEST['s'] ) && !empty( $_REQUEST['s'] ) )
+				echo '<span class="subtitle">' . sprintf( __( 'Search results for "%s"' , 'visual-form-builder' ), $_REQUEST['s'] );
+?>
 		</h2>
-        <?php
-			// Display the Entries
-			if ( isset( $_REQUEST['page'] ) && in_array( $_REQUEST['page'], array( 'vfb-entries' ) ) ) : 
-									
-				if ( isset( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], array( 'view' ) ) ) :
-					$entries_detail->entries_detail();
-				else :
-					$entries_list->prepare_items();
+		<?php if ( empty( $form_nav_selected_id ) ) : ?>
+		<div id="vfb-form-list">
+			<div id="vfb-sidebar">
+				<div id="vfb-upgrade-column">
+					<div class="vfb-pro-upgrade">
+				    	<h2><a href="http://vfb.matthewmuro.com">Visual Form Builder Pro</a></h2>
+				        <p class="vfb-pro-call-to-action">
+				        	<a class="vfb-btn vfb-btn-inverse" href="http://vfb.matthewmuro.com/#pricing"><?php _e( 'View Pricing' , 'visual-form-builder'); ?></a>
+				        	<a class="vfb-btn vfb-btn-primary" href="http://visualformbuilder.fetchapp.com/sell/dahdaeng/ppc"><?php _e( 'Buy Now' , 'visual-form-builder'); ?></a>
+				        </p>
+				        <h3><?php _e( 'New Features' , 'visual-form-builder'); ?></h3>
+				        <ul>
+				        	<li><a href="http://vfb.matthewmuro.com/#addons"><?php _e( 'Now with Add-Ons' , 'visual-form-builder'); ?></a></li>
+				            <li><?php _e( 'Akismet Support' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Optional SPAM Verification' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Nested Drag and Drop' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Conditional Logic' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( '10+ new Form Fields' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Complete Entries Management' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Import/Export' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Quality HTML Email Template' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Plain Text Email Option' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Email Designer' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Analytics' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Data &amp; Form Migration' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Scheduling' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Limit Form Entries' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Simple PayPal Integration' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Form Paging' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Live Preview' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Custom Capabilities' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'No License Key' , 'visual-form-builder'); ?></li>
+				            <li><?php _e( 'Automatic Updates' , 'visual-form-builder'); ?></li>
+				        </ul>
+
+				        <p><a href="http://vfb.matthewmuro.com/#features"><?php _e( 'View all features' , 'visual-form-builder'); ?></a>.</p>
+				    </div> <!-- .vfb-pro-upgrade -->
+
+			   		<h3><?php _e( 'Promote Visual Form Builder' , 'visual-form-builder'); ?></h3>
+			        <ul id="promote-vfb">
+			        	<li id="twitter"><?php _e( 'Follow me on Twitter' , 'visual-form-builder'); ?>: <a href="http://twitter.com/#!/matthewmuro">@matthewmuro</a></li>
+			            <li id="star"><a href="http://wordpress.org/extend/plugins/visual-form-builder/"><?php _e( 'Rate Visual Form Builder on WordPress.org' , 'visual-form-builder'); ?></a></li>
+			            <li id="paypal">
+			                <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=G87A9UN9CLPH4&lc=US&item_name=Visual%20Form%20Builder&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" width="74" height="21"></a>
+			            </li>
+			        </ul>
+			    </div> <!-- #vfb-upgrade-column -->
+			</div> <!-- #vfb-sidebar -->
+			<div id="vfb-main" class="vfb-order-type-list">
+				<?php $this->all_forms(); ?>
+			</div> <!-- #vfb-main -->
+		</div> <!-- #vfb-form-list -->
+
+		<?php
+		elseif ( !empty( $form_nav_selected_id ) && $form_nav_selected_id !== '0' ) :
+			include_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/admin-form-creator.php' );
+		endif;
 		?>
-            <form id="entries-filter" method="post" action="">
-                <?php
-                	$entries_list->search_box( 'search', 'search_id' );
-                	$entries_list->display();
-                ?>
-            </form>
-        <?php
-				endif;
-			elseif ( isset( $_REQUEST['page'] ) && in_array( $_REQUEST['page'], array( 'vfb-add-new' ) ) ) :
-					include_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/admin-new-form.php' );
-			elseif ( isset( $_REQUEST['page'] ) && in_array( $_REQUEST['page'], array( 'vfb-export' ) ) ) : 
-				$export->display();
-			// Display the Forms
-			else:
-				if ( empty( $form_nav_selected_id ) ) :
-		?>
-				<div id="vfb-form-list">
-					<div id="vfb-sidebar">
-						<div id="new-form" class="vfb-box">
-	                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=vfb-add-new' ) ); ?>">
-	                        	<img src="<?php echo plugins_url( 'visual-form-builder/images/plus-sign.png' ); ?>" width="50" height="50" />
-	                        	<h3><?php _e( 'New Form', 'visual-form-builder' ); ?></h3>
-	                        </a>
-						</div> <!-- #new-form -->
-						<div class="clear"></div>
-					</div> <!-- #vfb-sidebar -->
-				<div id="vfb-main" class="vfb-order-type-list">
-				<?php
-					$this->all_forms();
-				?>
-				</div> <!-- #vfb-main -->
-				</div> <!-- #vfb-form-list -->
-				<?php
-			?>
-				
-				<?php
-				elseif ( !empty( $form_nav_selected_id ) && $form_nav_selected_id !== '0' ) :
-					include_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/admin-form-creator.php' );
-				endif;
-				?>   
-        
 	</div>
 	<?php
-		endif;
 	}
-	
+
 	/**
 	 * Handle confirmation when form is submitted
-	 * 
+	 *
 	 * @since 1.3
 	 */
 	function confirmation(){
 		global $wpdb;
-		
+
 		$form_id = ( isset( $_REQUEST['form_id'] ) ) ? (int) esc_html( $_REQUEST['form_id'] ) : '';
-		
+
 		if ( isset( $_REQUEST['visual-form-builder-submit'] ) ) :
 			// Get forms
 			$order = sanitize_sql_orderby( 'form_id DESC' );
 			$forms 	= $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $this->form_table_name WHERE form_id = %d ORDER BY $order", $form_id ) );
-			
+
 			foreach ( $forms as $form ) :
 				// If text, return output and format the HTML for display
 				if ( 'text' == $form->form_success_type )
@@ -1845,76 +1916,76 @@ class Visual_Form_Builder{
 			endforeach;
 		endif;
 	}
-	
+
 	/**
 	 * Output form via shortcode
-	 * 
+	 *
 	 * @since 1.0
 	 */
 	public function form_code( $atts, $output = '' ) {
-		
+
 		require( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/form-output.php' );
-		
+
 		return $output;
 	}
-	
+
 	/**
 	 * Handle emailing the content
-	 * 
+	 *
 	 * @since 1.0
 	 * @uses wp_mail() E-mails a message
 	 */
 	public function email() {
 		require( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/email.php' );
 	}
-	
+
 	/**
 	 * Validate the input
-	 * 
+	 *
 	 * @since 2.2
 	 */
 	public function validate_input( $data, $name, $type, $required ) {
-		
+
 		if ( 'yes' == $required && strlen( $data ) == 0 )
 			wp_die( "<h1>$name</h1><br>" . __( 'This field is required and cannot be empty.', 'visual-form-builder' ), $name, array( 'back_link' => true ) );
-		
+
 		if ( strlen( $data ) > 0 ) :
 			switch( $type ) :
-				
+
 				case 'email' :
 					if ( !is_email( $data ) )
 						wp_die( "<h1>$name</h1><br>" . __( 'Not a valid email address', 'visual-form-builder' ), '', array( 'back_link' => true ) );
 				break;
-				
+
 				case 'number' :
 				case 'currency' :
 					if ( !is_numeric( $data ) )
 						wp_die( "<h1>$name</h1><br>" . __( 'Not a valid number', 'visual-form-builder' ), '', array( 'back_link' => true ) );
 				break;
-				
+
 				case 'phone' :
 					if ( strlen( $data ) > 9 && preg_match( '/^((\+)?[1-9]{1,2})?([-\s\.])?((\(\d{1,4}\))|\d{1,4})(([-\s\.])?[0-9]{1,12}){1,2}$/', $data ) )
-						return true; 
+						return true;
 					else
 						wp_die( "<h1>$name</h1><br>" . __( 'Not a valid phone number. Most US/Canada and International formats accepted.', 'visual-form-builder' ), '', array( 'back_link' => true ) );
 				break;
-				
+
 				case 'url' :
 					if ( !preg_match( '|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $data ) )
 						wp_die( "<h1>$name</h1><br>" . __( 'Not a valid URL.', 'visual-form-builder' ), '', array( 'back_link' => true ) );
 				break;
-				
+
 				default :
 					return true;
 				break;
-				
+
 			endswitch;
 		endif;
 	}
 
 	/**
 	 * Sanitize the input
-	 * 
+	 *
 	 * @since 2.5
 	 */
 	public function sanitize_input( $data, $type ) {
@@ -1923,90 +1994,92 @@ class Visual_Form_Builder{
 				case 'text' :
 					return sanitize_text_field( $data );
 				break;
-				
+
 				case 'textarea' :
 					return wp_strip_all_tags( $data );
 				break;
-				
+
 				case 'email' :
 					return sanitize_email( $data );
 				break;
-				
+
 				case 'html' :
 					return wp_kses_data( force_balance_tags( $data ) );
 				break;
-				
+
 				case 'number' :
-					return intval( $data );
+					return floatval( $data );
 				break;
-				
+
 				case 'address' :
 					$allowed_html = array( 'br' => array() );
 					return wp_kses( $data, $allowed_html );
 				break;
-				
+
 				default :
 					return wp_kses_data( $data );
 				break;
 			endswitch;
 		endif;
 	}
-	
+
 	/**
 	 * Make sure the User Agent string is not a SPAM bot
-	 * 
+	 *
 	 * @since 1.3
 	 */
 	public function isBot() {
 		$bots = apply_filters( 'vfb_blocked_spam_bots', array( 'archiver', 'binlar', 'casper', 'checkprivacy', 'clshttp', 'cmsworldmap', 'comodo', 'curl', 'diavol', 'dotbot', 'email', 'extract', 'feedfinder', 'flicky',  'grab', 'harvest', 'httrack', 'ia_archiver', 'jakarta', 'kmccrew', 'libwww', 'loader', 'miner', 'nikto', 'nutch', 'planetwork', 'purebot', 'pycurl', 'python', 'scan', 'skygrid', 'sucker', 'turnit', 'vikspider', 'wget', 'winhttp', 'youda', 'zmeu', 'zune' ) );
-	 
+
 		$isBot = false;
-		
+
 		$user_agent = wp_kses_data( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		foreach ( $bots as $bot ) {
 			if ( stripos( $user_agent, $bot ) !== false )
 				$isBot = true;
 		}
-	 
+
 		if ( empty( $user_agent ) || $user_agent == ' ' )
 			$isBot = true;
-	 
+
 		return $isBot;
 	}
 
 	public function build_array_form_item( $value, $type = '' ) {
-		
+
 		$output = '';
-		
+
 		// Basic check for type when not set
 		if ( empty( $type ) ) :
-			if ( array_key_exists( 'address', $value ) )
+			if ( is_array( $value ) && array_key_exists( 'address', $value ) )
 				$type = 'address';
-			elseif ( array_key_exists( 'hour', $value ) && array_key_exists( 'min', $value ) )
+			elseif ( is_array( $value ) && array_key_exists( 'hour', $value ) && array_key_exists( 'min', $value ) )
 				$type = 'time';
+			elseif ( is_array( $value ) )
+				$type = 'checkbox';
 			else
 				$type = 'default';
 		endif;
-		
+
 		// Build array'd form item output
 		switch( $type ) :
-			
+
 			case 'time' :
 				$output = ( array_key_exists( 'ampm', $value ) ) ? substr_replace( implode( ':', $value ), ' ', 5, 1 ) : implode( ':', $value );
 			break;
-			
+
 			case 'address' :
-				
+
 				if ( !empty( $value['address'] ) )
 					$output .= $value['address'];
-				
+
 				if ( !empty( $value['address-2'] ) ) {
 					if ( !empty( $output ) )
 						$output .= '<br>';
 					$output .= $value['address-2'];
 				}
-				
+
 				if ( !empty( $value['city'] ) ) {
 					if ( !empty( $output ) )
 						$output .= '<br>';
@@ -2031,23 +2104,26 @@ class Visual_Form_Builder{
 						$output .= '<br>';
 					$output .= $value['country'];
 				}
-				
-			break;
-						
-			default :
-				
-				$output = ( isset( $value['other'] ) ) ? wp_specialchars_decode( stripslashes( esc_html( $value['other'] ) ), ENT_QUOTES, 'UTF-8' ) : esc_html( implode( ', ', $value ) );
-				
-			break;
-			
-		endswitch;
-		
-		return $output;
-	}	
-}
 
-// On plugin activation, install the databases and add/update the DB version
-register_activation_hook( __FILE__, array( 'Visual_Form_Builder', 'install_db' ) );
+			break;
+
+			case 'checkbox' :
+
+				$output = esc_html( implode( ', ', $value ) );
+
+			break;
+
+			default :
+
+				$output = wp_specialchars_decode( stripslashes( esc_html( $value ) ), ENT_QUOTES );
+
+			break;
+
+		endswitch;
+
+		return $output;
+	}
+}
 
 // The VFB widget
 require( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'includes/class-widget.php' );

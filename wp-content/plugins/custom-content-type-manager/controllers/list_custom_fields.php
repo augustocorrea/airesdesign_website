@@ -16,7 +16,12 @@ $data['menu'] = sprintf('<a href="'.get_admin_url(false,'admin.php').'?page=cctm
 
 // Load 'em up
 $defs = CCTM::get_custom_field_defs();
-
+/*
+unset($defs['status']);
+self::$data['custom_field_defs'] = $defs;
+update_option( self::db_key, self::$data );
+exit;
+*/
 $def_cnt = count($defs);
 
 if (!isset($reset) && !$def_cnt ) {
@@ -27,7 +32,7 @@ if (!isset($reset) && !$def_cnt ) {
 $data['fields'] = '';
 
 foreach ($defs as $field_name => $d) {
-	
+	//print_r($defs); exit;
 	$d['name'] = $field_name; // just in case the key and the 'name' got out of sync.
 	
 	if (isset($d['required']) && $d['required']) {
@@ -37,14 +42,20 @@ foreach ($defs as $field_name => $d) {
 	if (!$FieldObj = CCTM::load_object($d['type'],'fields') ) {
 		continue;
 	}
-	
+
+	$FieldObj->set_props($d);
 	$d['icon'] 	= $FieldObj->get_icon();
 
 	if ( !CCTM::is_valid_img($d['icon']) ) {
 		$icon_src = self::get_custom_icons_src_dir() . 'default.png';
 	}
 
-	$d['icon'] = sprintf('<img src="%s" style="float:left; margin:5px;"/>', $d['icon']);
+	$d['icon'] = sprintf('<a href="?page=cctm_fields&a=edit_custom_field&field=%s&_wpnonce=%s" title="%s">
+		<img src="%s" style="float:left; margin:5px;"/></a>'
+		, $d['name']
+		, wp_create_nonce('cctm_edit_field')
+		, __('Edit this custom field', CCTM_TXTDOMAIN)
+		, $d['icon']);
 
 	
 	$d['edit'] = __('Edit');
@@ -74,6 +85,7 @@ foreach ($defs as $field_name => $d) {
 
 	// Show associated post-types
 	$d['post_types'] = array();
+
 	if (isset(CCTM::$data['post_type_defs']) && is_array(CCTM::$data['post_type_defs'])) {
 		foreach (CCTM::$data['post_type_defs'] as $pt => $pdef) {
 			if (isset($pdef['custom_fields']) && is_array($pdef['custom_fields']) 
@@ -82,6 +94,12 @@ foreach ($defs as $field_name => $d) {
 			}
 		}
 	}
+    
+    // Show options -- some different behavior for different types of fields. 
+    // TODO: add get_options() as a field to the FormElement class
+    // See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=457
+    $d['options_desc'] = $FieldObj->get_options_desc();
+	
 	if (empty($d['post_types'])) {
 		$d['post_types'] = '<em>'.__('Unassigned', CCTM_TXTDOMAIN).'</em>';
 	}

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: chart, analytics, visitors, users, spy, shortstat, tracking, reports, seo, referers, analyze, wassup, geolocation, online users, spider, tracker, pageviews, world map, stats, maxmind, flot, stalker, statistics, google+, monitor, seo
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 3.2.1
+Stable tag: 3.2.3
 
 == Description ==
 A powerful real-time web analytics plugin for Wordpress. Visit the [official site](http://slimstat.getused.to.it/) for more information.
@@ -24,7 +24,7 @@ A powerful real-time web analytics plugin for Wordpress. Visit the [official sit
 * Read all the [reviews](http://wordpress.org/support/view/plugin-reviews/wp-slimstat) and feel free to post your own
 
 = Requirements =
-* Wordpress 3.1 or higher (it may not work on large multisite environments; some users have reported problems in accessing the configuration page under Wordpress 3.3.x or earlier)
+* Wordpress 3.1 or higher (it may not work on *large* multisite environments; some users have reported problems in accessing the configuration page under Wordpress 3.3.x or earlier)
 * PHP 5.1 or higher
 * MySQL 5.0.3 or higher
 * At least 5 MB of free web space
@@ -33,6 +33,9 @@ A powerful real-time web analytics plugin for Wordpress. Visit the [official sit
 
 = Browser Compatibility =
 WP SlimStat uses the HTML5 Canvas element and SVG graphics to display its charts and the world map. Unfortunately Internet Explorer 8 and older versions don't support them, so you're encouraged to upgrade your browser.
+
+= Premium Add-ons =
+Please visit [our website](http://slimstat.getused.to.it/addons/) for an updated list of extensions.
 
 = Free Add-ons =
 * [WP SlimStat Shortcodes](http://wordpress.org/extend/plugins/wp-slimstat-shortcodes/) allows you to share your reports with your readers
@@ -265,9 +268,27 @@ foreach ($results...`
 
 == Changelog ==
 
+= 3.2.3 =
+* [New] Added color legend bar to World Map (thank you, [grutti](http://wordpress.org/support/topic/legend-of-world-map))
+* [New] French/Canadian localizations updated (thank you, Fred Bailly)
+* [New] Two new reports added: Browser Families and OS Families (thank you, Romain)
+* [Update] Brazilian localization has been updated (thank you, Raphael Suzuki)
+* [Update] [AmMap](http://www.ammap.com/download/) (Javascript-based World Map) has been updated to version 3.3.1
+* [Update] MaxMind database updated to June 2013
+* [Fix] Footer links in the admin were being printed instead of being returned (thank you, [Ov3rfly](http://wordpress.org/support/topic/bug-admin_footer_text-filter-prints-text-instead-of-returning-it))
+* [Fix] Setting to filter users by capabilities was not working (thank you, [clausbroch](http://wordpress.org/support/topic/filter-users-by-capabilities-not-saved))
+* [Fix] Duplicate error code was being returned when database was not accessible (thank you, Fabio)
+
+= 3.2.2 =
+* [Note] The new Export add-on has been released!
+* [New] You can now refresh the Right Now panel without reloading the entire page
+* [Update] Minor cosmetic changes in the CSS
+* [Fix] A bug was affecting the display of the 'Right Now' panel when Async Mode was enabled (thank you, [psn](http://wordpress.org/support/topic/right-now-stat-dissapear))
+* [Fix] Improved filters' behavior (thank you, [GermanKiwi](http://wordpress.org/support/topic/filtering-user-agents-and-tracking-downloads))
+
 = 3.2.1 =
 * [Note] [JSDelivr](http://www.jsdelivr.com/network.php), our CDN partners, have upgraded their network, which is now faster and more reliable than ever
-* [Note] You've been asking for it! The Export premium add-on is coming, stay tuned...
+* [Note] You've been asking for it, and we've listened! The Export premium add-on is coming, stay tuned...
 * [Update] Reinforced the plugin's controls on the database structure, and improved error handling for some rare issues that could arise (thank you, Vera)
 * [Update] Improved the new Add-ons screens, by listing both premium and free extensions, and by consolidating Add-ons settings under one single page
 * [Fix] We addressed a bug that was resetting all the settings on deactivation/reactivation (thank you, [Jeremy](http://wordpress.org/support/topic/deactivatereactivate-plugin-resets-its-settings))
@@ -306,6 +327,7 @@ foreach ($results...`
 [Dennis Kowallek](http://www.adopt-a-plant.com),
 [Damian](http://wipeoutmedia.com),
 [Edward Koon](http://www.fidosysop.org),
+Fabio Mascagna,
 [Gabriela Lungu](http://www.cosmeticebio.org),
 Gary Swarer,
 Giacomo Persichini,

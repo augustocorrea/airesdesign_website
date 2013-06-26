@@ -90,31 +90,20 @@ abstract class CCTM_FormElement {
 		'name_prefix' => '',
 		'css_prefix' => '',
 		'i' => 0,
+		// optionally you can set this to 1 if you don't want your field to 
+		// appear in the CCTM's generated sample template:
+		// 'hide_from_templates' => 0
 	);
-
-	/**
-	 * The $immutable array is used to set any attributes that will exist across all instances of this
-	 * field type. These attributes will be stored with the field definition.  Any value here will overrite
-	 * any value in the $props array.  The effect is similar to having hidden fields in your definition form:
-	 * these values will ALWAYS be in the stored definitions, and they cannot be changed at runtime.
-	 *
-	 * 'type'    :  the classname, minus the prefix.
-	 * 'hide_from_templates':  most custom fields are visible in the manager AND in the templates, but
-	 *       setting this to true will hide the field from the sample templates.
-	 *
-	 * Do not use booleans here. Scalars only for values, please.
-	 */
-	protected $immutable = array(
-		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
-		'hide_from_templates' => 0,
-	);
-
-
-	// Added to each key in the $_POST array, to avoid name pollution e.g. $_POST['cctm_firstname']
 	
-	// Can't use underscores due to issue 271 and WP 3.3 
+	/**
+	 * List any keys from $props that should not overwritable.
+	 */
+	protected $immutable = array('type','hide_from_templates');
+	
+	// Added to each key in the $_POST array, to avoid name pollution e.g. $_POST['cctm_firstname']
 	const post_name_prefix  = 'cctm_';
-	const css_class_prefix  = 'cctm_';
+	const css_class_prefix  = 'cctm_'; // used only when editing field defs... TODO: cleanup
+	// Can't use underscores due to issue 271 and WP 3.3
 	const css_id_prefix  = 'cctm';
 
 
@@ -134,14 +123,20 @@ abstract class CCTM_FormElement {
 	 * tying into the parent constructor, e.g.
 	 *
 	 *  public function __construct() {
-	 *  parent::__construct();
-	 *  $this->props['special_stuff'] = __('Translate me');
-	 * }
+	 *  	parent::__construct();
+	 *  	$this->props['special_stuff'] = __('Translate me');
+	 * 	}
 	 *
+	 * Props are passed to tpls and [+placeholders+] are replaced.
+	 *
+	 * @param array $config = Array (
+	 *					'id_prefix' => 
+	 *					'name_prefix' => 
+	 * 				)
 	 */
 	public function __construct() {
 		// instantiate properties
-		$this->immutable['type'] = preg_replace('/^'. CCTM::classname_prefix.'/', '', get_class($this));
+		$this->props['type'] = preg_replace('/^'. CCTM::field_prefix.'/', '', get_class($this));
 		$this->props['id_prefix'] = self::css_id_prefix;
 		$this->props['name_prefix'] = self::post_name_prefix;
 		$this->props['add_to_post'] = __('Add to Post', CCTM_TXTDOMAIN);
@@ -149,8 +144,6 @@ abstract class CCTM_FormElement {
 		$this->props['preview'] = __('Preview', CCTM_TXTDOMAIN);
 		$this->props['edit'] = __('Edit', CCTM_TXTDOMAIN);
 		
-		$this->props = array_merge($this->props, $this->immutable);
-
 		// Run-time Localization
 		$this->descriptions['button_label'] = __('How should the button be labeled? (Users will click this button to select the image, media, or relation).', CCTM_TXTDOMAIN);
 		$this->descriptions['class'] = __('Add a CSS class to instances of this field. Use this to customize styling in the WP manager.', CCTM_TXTDOMAIN);
@@ -219,19 +212,35 @@ abstract class CCTM_FormElement {
 	 * @param mixed   $v value for the requested attribute
 	 */
 	public function __set($k, $v) {
-		if ( !in_array($k, array_keys($this->immutable)) ) {
+		if (!in_array($k, $this->immutable)) {
 			$this->props[$k] = $v;
 		}
 	}
-
+	//------------------------------------------------------------------------------
+	//! Protected
+    //------------------------------------------------------------------------------
+    /**
+     * Get a visible listing of what the search parameters are for a relation field
+     * @param string $search_parameters_str URL encoded
+     * @return string
+     */
+    protected function _get_search_parameters_visible($search_parameters_str) {
+        require_once CCTM_PATH.'/includes/GetPostsQuery.php';
+		$Q = new GetPostsQuery();
+		parse_str($search_parameters_str, $args);
+		$Q = new GetPostsQuery($args);
+		return $Q->get_args();
+    }
+    
 	//------------------------------------------------------------------------------
 	//! Abstract and Public Functions... Implement Me!
 	//------------------------------------------------------------------------------
 	/**
 	 * This runs when the WP dashboard (i.e. admin area) is initialized.
 	 * Override this function to register any necessary CSS/JS req'd by your field.
+	 * @param array $fieldlist optional list of names of this type of field
 	 */
-	public function admin_init() { }
+	public function admin_init($fieldlist=array()) { }
 
 	//------------------------------------------------------------------------------
 	/**
@@ -242,6 +251,7 @@ abstract class CCTM_FormElement {
 	 */
 	public function format_available_output_filters($def) {
 		$available_output_filters = CCTM::get_available_helper_classes('filters');
+
 		require_once(CCTM_PATH.'/includes/CCTM_OutputFilter.php');
 
 		$out = '
@@ -263,7 +273,7 @@ abstract class CCTM_FormElement {
 		
 			require_once($filename);
 			
-			$classname = CCTM::classname_prefix . $filter;
+			$classname = CCTM::filter_prefix . $filter;
 		
 			$Obj = new $classname();
 
@@ -386,7 +396,7 @@ abstract class CCTM_FormElement {
 		if (isset($def['required']) && $def['required'] == 1) {
 			$req_is_checked = 'checked="checked"';
 		}
-// die(print_r($def,true));
+
 		// Is Required?
 
 		// Get available Validators
@@ -606,7 +616,7 @@ abstract class CCTM_FormElement {
 			}
 		}
 		// to_string.  We do some special acrobatics here to handle the case where a repeatable 
-		// field was changed a normal singular field.  Repeatable fields would be JSON encoded,
+		// field was changed to a normal singular field.  Repeatable fields would be JSON encoded,
 		// so we test for that and we try to extract the 1st value.
 		// Note that json_decode treats alphabetical strings differently than numeric strings!!!
 		else {
@@ -668,7 +678,7 @@ abstract class CCTM_FormElement {
 	 */
 	public function get_icon() {
 		$field_type = str_replace(
-			CCTM::classname_prefix,
+			CCTM::field_prefix,
 			'',
 			get_class($this) );
 		// Default image
@@ -681,6 +691,23 @@ abstract class CCTM_FormElement {
 		}
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * Show a brief bit about the options defined for this field.  This is useful 
+     * when reviewing a list of custom fields.  It returns a short string describing
+     * the options set for this field.  Depending on the type of field, this may
+     * contain different info.
+     * @return string
+     */
+    public function get_options_desc() {
+        if (!empty($this->props['default_value'])) {
+            return $this->props['default_value'] .'<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        else {
+            return '';
+        }
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * Accessor to $this->props
@@ -847,8 +874,18 @@ abstract class CCTM_FormElement {
 		// See this: http://kovshenin.com/archives/wordpress-and-magic-quotes/
 		$posted_data = CCTM::stripslashes_deep($posted_data);
 
+		//return $posted_data; // simplifiying immutable
+		foreach ($this->immutable as $x) {
+			if (isset($this->props[$x])) {
+				$posted_data[$x] = $this->props[$x];
+			}
+			else {
+				$posted_data[$x] = '';
+			}		
+		}
+		return $posted_data;
 		// Apply immutable properties, and return filtered data
-		return array_merge($posted_data, $this->immutable);
+		//return array_merge($posted_data, $this->immutable);
 	}
 
 	//------------------------------------------------------------------------------
@@ -861,6 +898,7 @@ abstract class CCTM_FormElement {
 		}
 		else {
 			$this->errors['improper_input_set_props'] = __('Improper input to the set_prop() function.', CCTM_TXTDOMAIN);
+			return false;
 		}
 	}
 	
@@ -871,6 +909,7 @@ abstract class CCTM_FormElement {
 	public function set_props($array) {
 		if (!is_array($array)) {
 			$this->errors['improper_input_set_props'] = __('Improper input to the set_props() function.', CCTM_TXTDOMAIN);
+			return false;
 		}
 		
 		foreach ($array as $k => $v) {

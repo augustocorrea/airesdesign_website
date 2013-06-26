@@ -65,132 +65,15 @@ class StandardizedCustomFields {
 		}
 	}
 
-	//------------------------------------------------------------------------------
-	/**
-	 * Validate custom fields.  Print message in admin head if there are errors.
-	 * TODO: should this even bother doing checks if there are no custom fields?
-	 * or would it be possible to do validations on built-in fields?
-	 */
-	private static function _validate_fields($post_type) {
-
-		global $post;
-		
-		$error_flag = false; // goes to true if there are errors, forces post to draft status
-		
-		$Q = new GetPostsQuery();
-		$full_post = $Q->get_post($post->ID);
-
-		$custom_fields = self::_get_custom_fields($post_type);
-		$validation_errors = array();
-		foreach ( $custom_fields as $field_name ) {
-			if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
-				continue;
-			}
-			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
-			
-			if ($FieldObj = CCTM::load_object($field_type,'fields')) {
-				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
-				$value = '';
-				if (isset($full_post[$field_name])) {
-					$value = $full_post[$field_name];
-				}
-				
-				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
-				$value_copy = '';
-				if ($FieldObj->is_repeatable) {
-					//$value_copy = json_decode(stripslashes($value), true);
-					$value_copy = $FieldObj->get_value($value, 'to_array');
-
-					if (is_array($value_copy)) {
-						foreach ($value_copy as $k => $v) {
-							if (empty($v)) {
-								unset($value_copy[$k]);
-							}
-						}
-					}
-				}
-				else {
-					$value_copy = $FieldObj->get_value($value, 'to_string');
-				}
-
-				
-				// Is this field required?  OR did validation fail?
-				if ($FieldObj->required && empty($value_copy) ) { // && strlen($value_copy) == 0) {
-					$error_flag = true;					
-					CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
-				}
-				// Do any other validation checks here: TODO
-				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
-				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
-					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
-					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
-						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
-					}
-					$Validator->set_subject($FieldObj->label);
-					$Validator->set_options($FieldObj->validator_options);
-					if (is_array($value_copy)) {
-						foreach ($value_copy as $i => $val) {
-							$value_copy[$i] = $Validator->validate($val);
-						}
-					}
-					else {
-						$value_copy = $Validator->validate($value_copy);
-					}					
-					if (!empty($Validator->error_msg)) { 
-						$error_flag = true;
-						CCTM::$post_validation_errors[$FieldObj->name] = $Validator->get_error_msg();
-					}
-				}
-				
-			}
-			else {
-				// error!  Can't include the field class.  WTF did you do?
-			}
-		}
-		
-		// Print any validation errors.
-		if(!empty(CCTM::$post_validation_errors)) {
-			$output = '<div class="error"><img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px; vertical-align:middle;"/><p style=""><strong>'
-				. __('This post has validation errors.  The post will remain in draft status until they are corrected.', CCTM_TXTDOMAIN) 
-				. '</strong></p>
-				<ul style="clear:both;">';
-			
-			foreach (CCTM::$post_validation_errors as $fieldname => $e) {
-				$output .= '<li>'.$e.'</li>';
-			}
-			$output .= '</ul></div>';
-			
-			// You have to print the style because WP overrides styles after the cctm manager.css is included.
-			// This isn't helpful during the admin head event because you'd have to also check validation at the time when
-			// the fields are printed in print_custom_fields(), which fires later on.
-			
-			// We can use this variable to pass data to a point later in the page request. 
-			// global $cctm_validation;
-			// CCTM::$errors 
-			// CCTM::$errors['my_field'] = 'This is the validation error with that field';
-			
-			$output .= '<style>';
-			$output .= file_get_contents(CCTM_PATH.'/css/validation.css');
-			$output .= '</style>';
-
-			print $output;
-		}
-		
-		// Override!! set post to draft status if there were validation errors.
-		if ($error_flag) {
-			global $wpdb;
-			$post_id = (int) CCTM::get_value($_POST, 'ID');
-			$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id));
-		}
-	}
 
 	//------------------------------------------------------------------------------
 	//! Public Functions	
 	//------------------------------------------------------------------------------
 	/**
-	* Create the metabox(es) for each post-type. We run a gauntlet here to see if 
+	* Create the metabox(es) for each post-type. We run a gauntlet here to see if we
 	* even need to add the metabox: normally it's only added if custom fields have
-	* been assigned to it, but users can force a metabox to be drawn.
+	* been assigned to it, but users can force a metabox to be drawn even if no
+	* fields have been assigned to it.
 	*/
 	public static function create_meta_box() {
 		$content_types_array = CCTM::get_active_post_types();
@@ -240,10 +123,11 @@ class StandardizedCustomFields {
 	 * hierarchical parents.
 	 *
 	 * @param	string	incoming html element for selecting a parent page, e.g.
-	 *						<select name="parent_id" id="parent_id">
-	 *					        <option value="">(no parent)</option>
-	 *					        <option class="level-0" value="706">Post1</option>
-	 *						</select>	
+	 *
+	 *     <select name="parent_id" id="parent_id">
+	 *	       <option value="">(no parent)</option>
+	 *		   <option class="level-0" value="706">Post1</option>
+	 *	    </select>	
 	 *
 	 * See http://wordpress.org/support/topic/cannot-select-parent-when-creatingediting-a-page	 
 	 */
@@ -341,9 +225,45 @@ class StandardizedCustomFields {
 		// Validate the custom fields: only need to do this AFTER a post-new.php has been created.
 		$file = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1);
 		if ( in_array($file, array('post.php'))) {
-			self::_validate_fields($post_type);
+			global $post;
+		
+			$Q = new GetPostsQuery();
+			$full_post = $Q->get_post($post->ID);
+			
+			if(!self::validate_fields($post_type, $full_post)) {
+		
+				// Print any validation errors.
+					$output = '<div class="error"><img src="'.CCTM_URL.'/images/warning-icon.png" width="50" height="44" style="float:left; padding:10px; vertical-align:middle;"/><p style=""><strong>'
+						. __('This post has validation errors.  The post will remain in draft status until they are corrected.', CCTM_TXTDOMAIN) 
+						. '</strong></p>
+						<ul style="clear:both;">';
+					
+					foreach (CCTM::$post_validation_errors as $fieldname => $e) {
+						$output .= '<li>'.$e.'</li>';
+					}
+					$output .= '</ul></div>';
+					
+					// You have to print the style because WP overrides styles after the cctm manager.css is included.
+					// This isn't helpful during the admin head event because you'd have to also check validation at the time when
+					// the fields are printed in print_custom_fields(), which fires later on.
+					
+					// We can use this variable to pass data to a point later in the page request. 
+					// global $cctm_validation;
+					// CCTM::$errors 
+					// CCTM::$errors['my_field'] = 'This is the validation error with that field';
+					
+					$output .= '<style>';
+					$output .= file_get_contents(CCTM_PATH.'/css/validation.css');
+					$output .= '</style>';
+		
+					print $output;
+				
+				// Override!! set post to draft status if there were validation errors.
+				global $wpdb;
+				$post_id = (int) CCTM::get_value($_POST, 'ID');
+				$wpdb->update($wpdb->posts, array('post_status' => 'draft'), array('ID' => $post_id));
+			}
 		}
-
 	}
 
 	/**
@@ -483,12 +403,7 @@ class StandardizedCustomFields {
 					$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
 					$value = $FieldObj->save_post_filter($_POST, $field_name);
 
-					if (defined('CCTM_DEBUG')) {			
-						$myFile = CCTM_DEBUG;
-						$fh = fopen($myFile, 'a') or die("can't open file");
-						fwrite($fh, "Field Type: $field_type  Value: $value\n");
-						fclose($fh);
-					}
+                    CCTM::log("Saving field Type: $field_type  with value: $value",__FILE__,__LINE__);
 										
 					// Custom fields can return a literal null if they don't save data to the db.
 					if ($value !== null) {
@@ -506,19 +421,12 @@ class StandardizedCustomFields {
 								}
 							}
 						}
-						// Is this field required?  
-						if ($FieldObj->required && empty($value_copy)) {
 
-							// Override!! set post to draft status
-							global $wpdb;
-							$post_id = (int) CCTM::get_value($_POST, 'ID');
-							$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $post_id ) );
-							// set flash message to notify user
-							$validation_errors[$FieldObj->name] = 'required';
-							update_post_meta($post_id, $field_name, $value);
-						}
-						// We do some more work to ensure the database stays lean
-						elseif(empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
+                        // We do some more work to ensure the database stays lean
+                        if(is_array($value_copy) && empty($value_copy) && !CCTM::get_setting('save_empty_fields')) {
+                            delete_post_meta($post_id, $field_name);
+                        }
+						if(!is_array($value_copy) && !strlen(trim($value_copy)) && !CCTM::get_setting('save_empty_fields')) {
 							// Delete the row from wp_postmeta, or don't write it at all
 							delete_post_meta($post_id, $field_name);
 						}
@@ -535,18 +443,99 @@ class StandardizedCustomFields {
 			
 			// Pass validation errors like this: fieldname => validator, e.g. myfield => required
 			if (!empty($validation_errors)) {
-				if (defined('CCTM_DEBUG')) {			
-					$myFile = "/tmp/cctm.txt";
-					$fh = fopen($myFile, 'a') or die("can't open file");
-					fwrite($fh, json_encode($validation_errors)."\n");
-					fclose($fh);
-				}
-
+                CCTM::log('Validation errors: '.json_encode($validation_errors),__FILE__,__LINE__);
 				CCTM::set_flash(json_encode($validation_errors));
 			}
 		}
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Validate custom fields on a post that's already been saved.
+	 *
+	 * @param string $post_type
+	 * @param array $full_post array of all submitted values
+	 * @return boolean : true if valid, false if there were errors
+	 */
+	public static function validate_fields($post_type,$full_post) {
+
+		$custom_fields = self::_get_custom_fields($post_type);
+		$validation_errors = array();
+		foreach ( $custom_fields as $field_name ) {
+			if (!isset(CCTM::$data['custom_field_defs'][$field_name]['type'])) {
+				continue;
+			}
+			$field_type = CCTM::$data['custom_field_defs'][$field_name]['type'];
+			
+			if ($FieldObj = CCTM::load_object($field_type,'fields')) {
+				$FieldObj->set_props(CCTM::$data['custom_field_defs'][$field_name]);
+				$value = '';
+				if (isset($full_post[$field_name])) {
+					$value = $full_post[$field_name];
+				}
+				
+				// Check for empty json arrays, e.g. [""], convert them to empty PHP array()
+				$value_copy = '';
+				if ($FieldObj->is_repeatable) {
+					$value_copy = $FieldObj->get_value($value, 'to_array');
+					if (is_array($value_copy)) {
+						foreach ($value_copy as $k => $v) {
+							if (empty($v)) {
+								unset($value_copy[$k]);
+							}
+						}
+					}
+				}
+				else {
+					$value_copy = $FieldObj->get_value($value, 'to_string');
+				}
+
+				// Is this field required?  OR did validation fail?
+				if ($FieldObj->required) {
+					if ((is_array($value_copy) && empty($value_copy))
+						|| (!is_array($value_copy) && !strlen(trim($value_copy)))) {
+						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);
+					}
+					elseif(!is_array($value_copy) && !strlen(trim($value_copy))) {
+						CCTM::$post_validation_errors[$FieldObj->name] = sprintf(__('The %s field is required.', CCTM_TXTDOMAIN), $FieldObj->label);					
+					}
+				}
+				// Do any other validation checks here: TODO
+				// see http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=426
+				// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=374
+				elseif ((!empty($value_copy) || $value_copy == '0') && isset($FieldObj->validator) && !empty($FieldObj->validator)) {
+					$Validator = CCTM::load_object($FieldObj->validator, 'validators');
+					if (isset(CCTM::$data['custom_field_defs'][$field_name]['validator_options'])) {
+						$Validator->set_options(CCTM::$data['custom_field_defs'][$field_name]['validator_options']);
+					}
+					$Validator->set_subject($FieldObj->label);
+					$Validator->set_options($FieldObj->validator_options);
+					if (is_array($value_copy)) {
+						foreach ($value_copy as $i => $val) {
+							$value_copy[$i] = $Validator->validate($val);
+						}
+					}
+					else {
+						$value_copy = $Validator->validate($value_copy);
+					}					
+					if (!empty($Validator->error_msg)) {
+						CCTM::$post_validation_errors[$FieldObj->name] = $Validator->get_error_msg();
+					}
+				}
+				
+			}
+			else {
+				// error!  Can't include the field class.  WTF did you do to get here?
+			}
+		}
+
+		if (empty(CCTM::$post_validation_errors)) {
+			return true;
+		}
+		else {
+			return false;
+		}		
+	}
 
 } // End of class
 

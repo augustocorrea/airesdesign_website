@@ -21,6 +21,8 @@ class MetaSlider {
         $this->identifier = 'metaslider_' . $this->id;
         $this->save();
         $this->populate_slides();
+
+        add_filter('metaslider_css', array($this, 'get_slider_css'), 10, 3);
     }
 
     /**
@@ -170,7 +172,7 @@ class MetaSlider {
             $query->next_post();
 
             $type = get_post_meta($query->post->ID, 'ml-slider_type', true);
-            $type = $type ? $type : 'image';
+            $type = $type ? $type : 'image'; // backwards compatibility, fall back to 'image'
 
             if (has_filter("metaslider_get_{$type}_slide")) {
                 $return = apply_filters("metaslider_get_{$type}_slide", $query->post->ID, $this->id);
@@ -183,11 +185,14 @@ class MetaSlider {
             }
         }
 
+        // apply random setting
         if ($this->get_setting('random') == 'true' && !is_admin()) {
             shuffle($slides);
         }
 
         $this->slides = $slides;
+
+        return $this->slides;
     }
 
     /**
@@ -207,64 +212,38 @@ class MetaSlider {
     public function render_public_slides() {
         $class = "metaslider metaslider-{$this->get_setting('type')} metaslider-{$this->id} ml-slider";
 
+        // apply the css class setting
         if ($this->get_setting('cssClass') != 'false') {
             $class .= " " . $this->get_setting('cssClass');
         }
 
+        // handle any custom classes
+        $class = apply_filters('metaslider_css_classes', $class, $this->id, $this->settings);
+
+        // carousels are always 100% wide
         if ($this->get_setting('carouselMode') != 'true') {
             $style = "max-width: {$this->get_setting('width')}px;";
         } else {
             $style = "width: 100%;";
         }
 
+        // center align the slideshow
         if ($this->get_setting('center') != 'false') {
             $style .= " margin: 0 auto;";
         }
 
-        $html  = "<div style='{$style}' class='{$class}'>" . $this->get_html() . "</div>";
+        // build the HTML
+        $html  = "\n<!--meta slider-->";
+        $html .= "\n<div style='{$style}' class='{$class}'>";
+        $html .= "\n    " . $this->get_inline_css();
+        $html .= "\n    <div id='metaslider_container_{$this->id}'>";
+        $html .= "\n        " . $this->get_html(); 
+        $html .= "\n    </div>";
         $html .= $this->get_inline_javascript();
-        $html .= $this->get_inline_css();
+        $html .= "\n</div>";
+        $html .= "\n<!--//meta slider-->";
 
         return $html;
-    }
-
-    /**
-     * Build the javascript parameter arguments for the slider.
-     * 
-     * @return string parameters
-     */
-    private function get_javascript_parameters() {
-        $options = array();
-
-        foreach ($this->get_default_parameters() as $name => $default) {
-            if ($param = $this->get_param($name)) {
-                $val = $this->get_setting($name);
-
-                if (gettype($default) == 'string') {
-                    $options[$param] = '"' . $val . '"';
-                } else {
-                    $options[$param] = $val;
-                }                
-            }
-        }
-
-        $type = $this->get_setting('type');
-
-        if (has_filter("metaslider_{$type}_slider_parameters")) {
-            $options = apply_filters("metaslider_{$type}_slider_parameters", $options, $this->id);
-        }
-
-        foreach ($options as $key => $value) {
-            if (is_array($value)) {
-                $pairs[] = "{$key}: function() {\n                " 
-                            . implode("\n                ", $value) 
-                            . "\n            }";
-            } else {
-                $pairs[] = "{$key}:{$value}";
-            }
-        }
-
-        return implode(",\n            ", $pairs);
     }
 
     /**
@@ -279,48 +258,120 @@ class MetaSlider {
     private function get_inline_javascript() {
         $identifier = $this->identifier;
         $type = $this->get_setting('type');
-        $javascript = "";
-        $javascript = apply_filters("metaslider_{$type}_slider_javascript", $javascript, $this->id);
 
-        $return_value  = "\n<script type='text/javascript'>";
-        $return_value .= "\n    var " . $identifier . " = function($) {";
-        $return_value .= "\n        $('#" . $identifier . "')." . $this->js_function . "({ ";
-        $return_value .= "\n            " . $this->get_javascript_parameters();
-        $return_value .= "\n        });";
-        if (strlen ($javascript)) {
-            $return_value .= "\n        {$javascript}";
+        $custom_js = apply_filters("metaslider_{$type}_slider_javascript", "", $this->id);
+
+        $script  = "\n    <script type='text/javascript'>";
+        $script .= "\n        var " . $identifier . " = function($) {";
+        $script .= "\n            $('#" . $identifier . "')." . $this->js_function . "({ ";
+        $script .= "\n                " . $this->get_javascript_parameters();
+        $script .= "\n            });";
+        if (strlen ($custom_js)) {
+            $script .= "\n            {$custom_js}";
         }
-        $return_value .= "\n    };";
-        $return_value .= "\n    var timer_" . $identifier . " = function() {";
-        $return_value .= "\n        var slider = !window.jQuery ? window.setTimeout(timer_{$identifier}, 100) : !jQuery.isReady ? window.setTimeout(timer_{$identifier}, 100) : {$identifier}(window.jQuery);";
-        $return_value .= "\n    };";
-        $return_value .= "\n    timer_" . $identifier . "();";
-        $return_value .= "\n</script>";
+        $script .= "\n        };";
+        $script .= "\n        var timer_" . $identifier . " = function() {";
+        $script .= "\n            var slider = !window.jQuery ? window.setTimeout(timer_{$identifier}, 100) : !jQuery.isReady ? window.setTimeout(timer_{$identifier}, 100) : {$identifier}(window.jQuery);";
+        $script .= "\n        };";
+        $script .= "\n        timer_" . $identifier . "();";
+        $script .= "\n    </script>";
 
-        return $return_value;
+        return $script;
     }
 
     /**
+     * Build the javascript parameter arguments for the slider.
+     * 
+     * @return string parameters
+     */
+    private function get_javascript_parameters() {
+        $options = array();
+
+        // construct an array of all parameters
+        foreach ($this->get_default_parameters() as $name => $default) {
+            if ($param = $this->get_param($name)) {
+                $val = $this->get_setting($name);
+
+                if (gettype($default) == 'string') {
+                    $options[$param] = '"' . $val . '"';
+                } else {
+                    $options[$param] = $val;
+                }                
+            }
+        }
+
+        // deal with any customised parameters
+        $type = $this->get_setting('type');
+
+        if (has_filter("metaslider_{$type}_slider_parameters")) {
+            $options = apply_filters("metaslider_{$type}_slider_parameters", $options, $this->id);
+        }
+
+        // create key:value strings
+        foreach ($options as $key => $value) {
+            if (is_array($value)) {
+                $pairs[] = "{$key}: function() {\n                " 
+                            . implode("\n                ", $value) 
+                            . "\n            }";
+            } else {
+                $pairs[] = "{$key}:{$value}";
+            }
+        }
+
+        return implode(",\n                ", $pairs);
+    }
+
+    /**
+     * Apply any custom inline styling
+     * 
      * @return string
      */
     private function get_inline_css() {
         if (has_filter("metaslider_css")) {
-            return "<style type='text/css'>" . apply_filters("metaslider_css", $this->settings, $this->id) . "</style>";
+            $css = apply_filters("metaslider_css", "", $this->settings, $this->id);
+            $scoped = ' scoped';
+
+            if (isset($_SERVER['HTTP_USER_AGENT'])){
+                $agent = $_SERVER['HTTP_USER_AGENT'];
+                if (strlen(strstr($agent,"Firefox")) > 0 ){ 
+                    $scoped = '';
+                }
+            }
+
+            if (strlen($css)) {
+                return "<style type='text/css'{$scoped}>{$css}\n    </style>";
+            }
         }
+
+        return "";
     }
+
+    /**
+     * 
+     */
+    public function get_slider_css($css, $settings, $slider_id) {
+        if ($slider_id != $this->id) {
+            return $css;
+        }
+
+        $imports = "";
+
+        if ($this->get_setting('printCss') == 'true') {
+            $stylesheets[] = "@import url('" . METASLIDER_ASSETS_URL . "metaslider/public.css?ver=" . METASLIDER_VERSION . "');";
+            $stylesheets[] = "@import url('" . METASLIDER_ASSETS_URL . $this->css_path . "?ver=" . METASLIDER_VERSION . "');";
+            $imports = "\n        " . implode("\n        ", $stylesheets);
+        }
+
+        return $css . $imports;
+    }
+
 
     /**
      * Include slider assets, JS and CSS paths are specified by child classes.
      */
     public function enqueue_scripts() {
         if ($this->get_setting('printJs') == 'true') {
-            wp_enqueue_script('metaslider-easing', METASLIDER_ASSETS_URL . 'easing/jQuery.easing.min.js', array('jquery'), METASLIDER_VERSION);
             wp_enqueue_script('metaslider-' . $this->get_setting('type') . '-slider', METASLIDER_ASSETS_URL . $this->js_path, array('jquery'), METASLIDER_VERSION);
-        }
-
-        if ($this->get_setting('printCss') == 'true') {
-            wp_enqueue_style('metaslider-display-css', METASLIDER_ASSETS_URL . 'metaslider/public.css', false, METASLIDER_VERSION);
-            wp_enqueue_style('metaslider-' . $this->get_setting('type') . '-slider-css', METASLIDER_ASSETS_URL . $this->css_path);
         }
 
         do_action('metaslider_register_public_styles');

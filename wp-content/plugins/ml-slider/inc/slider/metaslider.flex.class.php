@@ -14,9 +14,8 @@ class MetaFlexSlider extends MetaSlider {
         parent::__construct($id);
         add_filter('metaslider_flex_slider_parameters', array($this, 'enable_carousel_mode'), 10, 2);
         add_filter('metaslider_flex_slider_parameters', array($this, 'enable_easing'), 10, 2);
-        add_filter('metaslider_css', array($this, 'get_carousel_css'), 10, 2);
+        add_filter('metaslider_css', array($this, 'get_carousel_css'), 10, 3);
     }
-
 
     /**
      * Adjust the slider parameters so they're comparible with the carousel mode
@@ -56,10 +55,12 @@ class MetaFlexSlider extends MetaSlider {
     /**
      * Return css to ensure our slides are rendered correctly in the carousel
      */
-    public function get_carousel_css($settings, $slider_id) {
+    public function get_carousel_css($css, $settings, $slider_id) {
         if (isset($settings["carouselMode"]) && $settings['carouselMode'] == 'true') {
-            return "#metaslider_{$slider_id}.flexslider li {margin-right: {$this->carousel_item_margin}px;}";
+            $css .= "\n#metaslider_{$slider_id}.flexslider li {margin-right: {$this->carousel_item_margin}px;}";
         }
+
+        return $css;
     }
 
     /**
@@ -92,19 +93,30 @@ class MetaFlexSlider extends MetaSlider {
     }
 
     /**
+     * Include slider assets
+     */
+    public function enqueue_scripts() {
+        parent::enqueue_scripts();
+        if ($this->get_setting('printJs') == 'true') {
+            wp_enqueue_script('metaslider-easing', METASLIDER_ASSETS_URL . 'easing/jQuery.easing.min.js', array('jquery'), METASLIDER_VERSION);
+        }
+    }
+    
+    /**
      * Build the HTML for a slider.
      *
      * @return string slider markup.
      */
     protected function get_html() {
-        $return_value = "<div id='" . $this->get_identifier() . "' class='flexslider'><ul class='slides'>";
+        $return_value = "<div id='" . $this->get_identifier() . "' class='flexslider'>";
+        $return_value .= "\n            <ul class='slides'>";
 
         foreach ($this->slides as $slide) {
-            $return_value .= "<li style='display: none;'>" . $slide . "</li>";
-            $first = false;
+            $return_value .= "\n                <li style='display: none;'>\n    " . $slide . "\n                </li>";
         }
         
-        $return_value .= "</ul></div>";
+        $return_value .= "\n            </ul>";
+        $return_value .= "\n        </div>";
 
         return $return_value;
     }

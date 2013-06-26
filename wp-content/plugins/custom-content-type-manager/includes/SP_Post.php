@@ -122,7 +122,8 @@ class SP_Post {
 		
 	//------------------------------------------------------------------------------
 	/**
-	 * Used to override another filter.
+	 * Used to override filtering. Use carefully.
+	 *
 	 * @param	string	$val
 	 * @return	string
 	 */
@@ -132,7 +133,8 @@ class SP_Post {
 	
 	//------------------------------------------------------------------------------
 	/**
-	 * Basic text protection.
+	 * Basic text protection.  This is stricter than "content" protection: content
+	 * allows some HTML.
 	 * @param	string	$val
 	 * @return	string
 	 */
@@ -329,6 +331,17 @@ class SP_Post {
 		return $this->insert($args);
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * Sets a validator option: useful if you want to customize how data is filtered
+	 * before you save it.
+	 *
+	 * @param string $field : name of the field
+	 * @param stirng $validator : none, int, date, text, content
+	 */
+	public function set_validator($field, $validator) {
+		$this->validators[$field] = $validator;
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -378,7 +391,7 @@ class SP_Post {
 			if (is_array($v)) {
 				$v = json_encode($v);
 			}
-			if ($wpdb->update( $wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) == false ) {
+			if ($wpdb->update( $wpdb->postmeta, array('meta_value' => $v), array('post_id' => $post_id, 'meta_key' => $k)) === false ) {
 				// it's a new row, so we insert
 				if ($wpdb->insert($wpdb->postmeta, array('post_id' => $post_id, 'meta_key' => $k, 'meta_value'=>$v)) == false) {
 					$this->errors[] = "Error inserting row into {$wpdb->postmeta} for column $k";

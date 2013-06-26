@@ -25,7 +25,7 @@ class CCTM_colorselector extends CCTM_FormElement
 	/**
 	 * Add some necessary Javascript
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_enqueue_script( 'jquery-mcolorpicker', CCTM_URL . '/js/mColorPicker.js', 'jquery-ui-core');
 	}
 
@@ -157,7 +157,7 @@ class CCTM_colorselector extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 		// Populate the values (i.e. properties) of this field
-		$this->id 					= $this->name; 
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$fieldtpl = '';
 		$wrappertpl = '';
@@ -230,6 +230,19 @@ class CCTM_colorselector extends CCTM_FormElement
 			 	
 		return $out;
 	}
+	
+	//------------------------------------------------------------------------------
+	/**
+	 * Show a color swatch of the sample color
+	 */
+    public function get_options_desc() {
+        if (!empty($this->props['default_value'])) {
+            return sprintf('<div style="background-color:%s; height:20px; width:20px;"></div>',$this->props['default_value']) .'<em>('.__('default',CCTM_TXTDOMAIN).')</em>';
+        }
+        else {
+            return '';
+        }
+    }	
 }
 
 

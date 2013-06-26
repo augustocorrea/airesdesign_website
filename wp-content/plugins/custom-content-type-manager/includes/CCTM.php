@@ -19,7 +19,7 @@ class CCTM {
 	// See http://php.net/manual/en/function.version-compare.php:
 	// any string not found in this list < dev < alpha =a < beta = b < RC = rc < # < pl = p
 	const name   = 'Custom Content Type Manager';
-	const version = '0.9.7';
+	const version = '0.9.7.6';
 	const version_meta = 'pl'; // dev, rc (release candidate), pl (public release)
 
 	// Required versions (referenced in the CCTMtest class).
@@ -42,8 +42,10 @@ class CCTM {
 
 	// Each class that extends either the CCTM_FormElement class or the
 	// the CCTM_OutputFilter class must prefix this to its class name.
-	const classname_prefix = 'CCTM_';
-
+	const field_prefix = 'CCTM_';
+	const filter_prefix = 'CCTM_';
+	const validator_prefix = 'CCTM_Rule_';
+	
 	// used to control the uploading of the .cctm.json files
 	const max_def_file_size = 524288; // in bytes
 
@@ -308,12 +310,7 @@ class CCTM {
 				__('Could not create the cache directory at %s.', CCTM_TXTDOMAIN)
 				, "<code>$cache_dir</code>. Please create the directory with permissions so PHP can write to it.");
 
-			if (defined('CCTM_DEBUG')) {			
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, 'Failed to create directory '.$cache_dir.$subdir."\n");
-				fclose($fh);
-			}
+            CCTM::log('Failed to create directory '.$cache_dir.$subdir, __FILE__,__LINE__);
 
 			// Failed to create the dir... now what?!?  We cram the full-sized image into the 
 			// small image tag, which is exactly what WP does (yes, seriously.)				
@@ -395,9 +392,29 @@ class CCTM {
 			$def['public'] = true;
 		}
 		
+		// Provide default mapping if none are supplied verbosely.
 		// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=409
-		if (empty($def['capabilities'])) {
-			unset($def['capabilities']);
+		// http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=460
+		if (empty($def['capabilities']) && isset($def['capability_type']) && !empty($def['capability_type'])) {
+			$capability_type = $def['capability_type'];
+			$def['capabilities'] = array(
+			    'edit_post'              => "edit_{$capability_type}",
+			    'read_post'              => "read_{$capability_type}",
+			    'delete_post'            => "delete_{$capability_type}",
+			    'edit_posts'             => "edit_{$capability_type}s",
+			    'edit_others_posts'      => "edit_others_{$capability_type}s",
+			    'publish_posts'          => "publish_{$capability_type}s",
+			    'read_private_posts'     => "read_private_{$capability_type}s",
+			    'delete_posts'           => "delete_{$capability_type}s",
+			    'delete_private_posts'   => "delete_private_{$capability_type}s",
+			    'delete_published_posts' => "delete_published_{$capability_type}s",
+			    'delete_others_posts'    => "delete_others_{$capability_type}s",
+			    'edit_private_posts'     => "edit_private_{$capability_type}s",
+			    'edit_published_posts'   => "edit_published_{$capability_type}s",
+			);
+		}
+		elseif (empty($def['capabilities'])) {
+			unset($def['capabilities']);		
 		}
 		elseif(is_scalar($def['capabilities'])) {
 			$capabilities = array();
@@ -423,8 +440,6 @@ class CCTM {
 
 		return $def;
 	}
-
-
 
 
 	//! Public Functions
@@ -507,6 +522,322 @@ class CCTM {
 		return $links;
 	}
 
+	/**
+	 * Prints a form to the end user so that the users on the front-end can create 
+	 * posts (beware security!).
+	 *
+	 * [cctm_post_form post_type="property" thank_you_url="" on_save="default-action-here"]
+	 *
+	 * @param	array	$raw_args: parameters from the shortcode: name, filter
+	 * @param	string	$options (optional)
+	 * @return string (printed)	 
+	 */
+	public static function cctm_post_form($raw_args=array(), $options = null) {
+		
+		$post_type = CCTM::get_value($raw_args, 'post_type');
+		$output = array(
+			'content' => '',
+			'errors' => '',
+		);
+		$defaults = array(
+			'post_type' => '',
+			'post_status' => 'draft', // for security!
+			'post_author' => CCTM::get_user_identifier(),
+			'post_date' => date('Y-m-d H:i:s'),
+			'post_date_gmt' => gmdate('Y-m-d H:i:s'),
+			'post_modified' => date('Y-m-d H:i:s'),
+			'post_modified_gmt' => gmdate('Y-m-d H:i:s'),
+			'_label_title' => __('Title'),
+			'_label_content' => __('Content'),
+			'_label_excerpt' => __('Excerpt'),			
+			'_callback_pre' => null,
+			'_callback' => 'CCTM::post_form_handler',
+			'_action' => get_permalink(), // of current page
+			'_tpl' => '_default',
+			'_id_prefix' => 'cctm_',
+			'_name_prefix' => 'cctm_',
+			'_css' => CCTM_URL . '/css/manager.css,'.CCTM_URL.'/css/validation.css'
+		);
+
+		$args = array_merge($defaults, $raw_args );
+
+		// Call the _callback_pre function (if present).
+		if ($args['_callback_pre']) {
+			$output['content'] .= call_user_func($args['_callback_pre'], $args);
+		}
+	
+		// Load CSS
+		$css = explode(',', $args['_css']);
+		foreach ($css as $c) {
+			$css_id = basename($c);
+			wp_register_style($css_id, $c);
+			wp_enqueue_style($css_id);
+		}
+		
+		// Hard error
+		if (empty($post_type)) {
+			return __('cctm_post_form shortcode requires the "post_type" parameter.', CCTM_TXTDOMAIN);
+		}
+		// Disallow certain problematic post-types
+		elseif (in_array($post_type, array('attachment','revision','nav_menu_item'))) {
+			return sprintf(__('cctm_post_form shortcode does not support that post_type: %s', CCTM_TXTDOMAIN)
+				,$post_type);
+		}
+		// WTF?
+		if (!post_type_exists($post_type)) {
+			return sprintf(__('cctm_post_form shortcode post_type not found: %s', CCTM_TXTDOMAIN)
+				,$post_type);
+		}
+		
+        //------------------------------
+		// Process the form on submit
+        //------------------------------		
+		$nonce = CCTM::get_value($_POST, '_cctm_nonce');
+		if ( !empty($_POST)) {
+			// Bogus submission
+			if (!wp_verify_nonce($nonce, 'cctm_post_form_nonce')) {
+				die('Your form could not be submitted.  Please reload the page and try again.');
+			}
+			// Strip prefix from post keys: only collect those with the given prefix.
+			// This should allow mulitiple forms on one page.
+			$vals = array();
+			foreach ($_POST as $k => $v) {
+				if (preg_match('/^'.preg_quote($args['_name_prefix']).'/',$k)) {
+					$k = preg_replace('/^'.preg_quote($args['_name_prefix']).'/', '', $k);
+					$vals[$k] = wp_kses($v, array()); // TODO: options for this?
+				}
+			}
+			// Validate fields
+			StandardizedCustomFields::validate_fields($post_type,$vals);
+			
+			// Add the arguments back in
+			$vals = array_merge($vals,$args);
+			
+			// Save data if it was properly submitted	
+			if (empty(CCTM::$post_validation_errors)) {
+				return call_user_func($args['_callback'], $vals);
+			}
+			// Populate the main error block
+			else {
+				$error_item_tpl = CCTM::load_tpl(array('forms/_error_item.tpl'));
+				$hash = array();
+				$hash['errors'] = '';
+				$hash['error_msg'] = __('This form has validation errors.', CCTM_TXTDOMAIN);
+				$hash['cctm_url'] = CCTM_URL;
+				foreach (CCTM::$post_validation_errors as $k => $v) {
+					$hash['errors'] .= CCTM::parse($error_item_tpl, array('error'=>$v));				
+				}
+				$error_wrapper_tpl = CCTM::load_tpl(array('forms/_error_wrapper.tpl'));
+				$output['errors'] = CCTM::parse($error_wrapper_tpl, $hash);
+			}
+        }
+        
+        //------------------------------
+		// Generate the form.        		
+        //------------------------------
+		$output['_action'] = $args['_action'];
+
+		// Post Title
+		if (post_type_supports($args['post_type'],'title') && !isset($args['post_title'])) {
+        	$FieldObj = CCTM::load_object('text','fields');
+			$post_title_def = array(
+				'label' => $args['_label_title'],
+				'name' => 'post_title',
+				'default_value' => wp_kses(
+					CCTM::get_value($_POST,$args['_name_prefix'].'post_title'),array()),
+				'extra' => '',
+				'class' => '',
+				'description' => '',
+				'validator' => '',
+				'output_filter' => '',
+				'type' => 'text'
+			);
+			$FieldObj->set_props($post_title_def);
+			    $output_this_field = $FieldObj->get_create_field_instance();
+			$output['post_title'] = $output_this_field;
+			$output['content'] .= $output_this_field;
+		}
+		
+		// Post Content (editor)
+		if (post_type_supports($args['post_type'],'editor') && !isset($args['post_content'])) {
+        	$FieldObj = CCTM::load_object('textarea','fields'); // TODO: change to wysiwyg
+			$post_title_def = array(
+				'label' => $args['_label_content'],
+				'name' => 'post_content',
+				'default_value' => wp_kses(
+					CCTM::get_value($_POST,$args['_name_prefix'].'post_content'),array()),
+				'extra' => 'cols="80" rows="10"',
+				'class' => '',
+				'description' => '',
+				'validator' => '',
+				'output_filter' => '',
+				'type' => 'textarea' // TODO: implement simplified WYSIWYG
+			);
+			$FieldObj->set_props($post_title_def);
+			    $output_this_field = $FieldObj->get_create_field_instance();
+			$output['post_content'] = $output_this_field;
+			$output['content'] .= $output_this_field;
+		}
+		// Post Excerpt
+		if (post_type_supports($args['post_type'],'excerpt') && !isset($args['post_excerpt'])) {
+        	$FieldObj = CCTM::load_object('textarea','fields');
+			$post_title_def = array(
+				'label' => $args['_label_excerpt'],
+				'name' => 'post_excerpt',
+				'default_value' => wp_kses(
+					CCTM::get_value($_POST,$args['_name_prefix'].'post_excerpt'),array()),
+				'extra' => 'cols="80" rows="10"',
+				'class' => '',
+				'description' => '',
+				'validator' => '',
+				'output_filter' => '',
+				'type' => 'textarea'
+			);
+			$FieldObj->set_props($post_title_def);
+			    $output_this_field = $FieldObj->get_create_field_instance();
+			$output['post_excerpt'] = $output_this_field;
+			$output['content'] .= $output_this_field;
+		}
+		
+		// Custom fields		
+		$custom_fields = array();
+		
+		if (isset(CCTM::$data['post_type_defs'][$post_type]['custom_fields'])) {
+		  $custom_fields = CCTM::$data['post_type_defs'][$post_type]['custom_fields'];
+		}
+		foreach ( $custom_fields as $cf ) {
+			// skip the field if its value is hard-coded
+			if (!isset(CCTM::$data['custom_field_defs'][$cf]) || isset($args[$cf])) {
+				continue;
+			}
+			$def = CCTM::$data['custom_field_defs'][$cf];
+			if (isset($def['required']) && $def['required'] == 1) {
+				$def['label'] = $def['label'] . '*'; // Add asterisk
+			}
+			// SECURITY OVERRIDES!!! 
+			// See https://code.google.com/p/wordpress-custom-content-type-manager/wiki/cctm_post_form
+			if ($def['type'] == 'wysiwyg') {
+				$def['type'] = 'textarea';
+			}
+			elseif (in_array($def['type'], array('relation','image','media'))) {
+				$output['errors'] .= ' '.$def['type'].' fields not allowed.';
+				continue;
+			}
+			$output_this_field = '';
+			if (!$FieldObj = CCTM::load_object($def['type'],'fields')) {
+				continue;
+			}
+			// Repopulate
+			if (isset($_POST[ $args['_name_prefix'].$def['name'] ])) {
+				$def['default_value'] = wp_kses(
+					$_POST[ $args['_name_prefix'].$def['name'] ],array());
+			}
+					
+			if (empty(CCTM::$post_validation_errors)) {	
+				$FieldObj->set_props($def);
+				$output_this_field = $FieldObj->get_create_field_instance();
+			}
+			else {
+				$current_value = wp_kses(CCTM::get_value($_POST,$args['_name_prefix'].$def['name']),array());
+				
+				if (isset(CCTM::$post_validation_errors[ $def['name'] ])) {
+					$def['error_msg'] = sprintf('<span class="cctm_validation_error">%s</span>', CCTM::$post_validation_errors[ $def['name'] ]);
+					if (isset($def['class'])) {
+						$def['class'] .= 'cctm_validation_error';
+					}
+					else {
+						$def['class'] = 'cctm_validation_error';
+					}
+					
+				}
+				$FieldObj->set_props($def);
+				$output_this_field =  $FieldObj->get_edit_field_instance($current_value);
+			}
+			$output[$cf] = $output_this_field;	
+			$output['content'] .= $output_this_field;
+		}
+
+		// Add Nonce
+		$output['nonce'] = '<input type="hidden" name="_cctm_nonce" value="'.wp_create_nonce('cctm_post_form_nonce').'" />';
+        $output['content'] .= $output['nonce'];
+        
+		// Add Submit
+		$output['submit'] = '<input type="submit" value="'.__('Submit', CCTM_TXTDOMAIN).'" />';
+        $output['content'] .= $output['submit'];
+		
+		$formtpl = CCTM::load_tpl(
+			array('forms/'.$args['_tpl'].'.tpl'
+				, 'forms/_'.$post_type.'.tpl'
+				, 'forms/_default.tpl'
+			)
+		);
+		
+		return CCTM::parse($formtpl, $output);
+		
+	}
+
+	/**
+	 * Callback function used by the cctm_post_form() function.  This is what gets 
+	 * called 
+	 *
+	 * @param	array $args: parameters from the shortcode and posted data
+	 * @return string (printed)	 
+	 */
+	public static function post_form_handler($args) {
+		//return print_r($args,true);
+		// Strip out the control stuff (keys begin with underscore)
+		$vals = array();
+		foreach ($args as $k => $v) {
+			if (preg_match('/^_/',$k)) {
+				continue;
+			}
+			$vals[$k] = $v;
+		}
+		
+		
+		// Insert into Database
+		$email_only = CCTM::get_value($args, '_email_only');
+		if (!$email_only) {
+			require_once(CCTM_PATH.'/includes/SP_Post.php');
+			$P = new SP_Post();
+			$post_id = $P->insert($vals);
+		}
+		
+		// Email stuff
+		if (isset($args['_email_to']) && !empty($args['_email_to']) 
+			&& isset($args['_email_tpl']) && !empty($args['_email_tpl'])) {
+		
+			$Q = new GetPostsQuery();
+			$P = $Q->get_post($args['_email_tpl']);
+			//return print_r($P, true);
+			$subject = $P['post_title'];
+			$message_tpl = wpautop($P['post_content']);
+			// If the 'My User' <myuser@email.com> format is used, we have to manipulate the string
+			// to keep WP from tripping over itself
+			$from = CCTM::get_value($args, '_email_from', get_bloginfo('admin_email'));
+			$from = str_replace(array('&#039','&#034;','&quot;','&lt;','&gt;'), array("'",'"','"','<','>'), $from);
+			// die(print_r($args,true));
+			$subject = CCTM::get_value($args, '_email_subject', $subject);
+			$headers = 'From: '.$from . "\r\n";
+			$headers .= 'content-type: text/html' . "\r\n";
+			
+			$message = CCTM::parse($message_tpl, $vals);
+			if(!wp_mail($args['_email_to'], $subject, $message, $headers)) {
+				return "There was a problem sending the email.";
+			}
+		}
+		
+		// Redirect or show a simple message.
+		$redirect = CCTM::get_value($args, '_redirect');
+		if ($redirect) {
+			$url = get_permalink($redirect);
+			CCTM::redirect($url, true);
+		}
+		
+		// Else, return message:
+		return CCTM::get_value($args, '_msg', "Thanks for submitting the form!");
+
+	}
 
 	//------------------------------------------------------------------------------
 	/**
@@ -529,7 +860,7 @@ class CCTM {
 
 		/* Only do the slow convert if there are 8-bit characters */
 		/* avoid using 0xA0 (\240) in ereg ranges. RH73 does not like that */
-		if (! preg_match("/[\200-\237]/", $string) and ! preg_match("/[\241-\377]/", $string)) {
+		if (!preg_match("/[\200-\237]/", $string) and !preg_match("/[\241-\377]/", $string)) {
 			return $string;
 		}
 
@@ -694,7 +1025,7 @@ class CCTM {
 	 */
 	public static function filter($value, $outputfilter, $options=null) {
 	
-		$filter_class = CCTM::classname_prefix.$outputfilter;
+		$filter_class = CCTM::filter_prefix.$outputfilter;
 
 		require_once CCTM_PATH.'/includes/CCTM_OutputFilter.php';
 		
@@ -1232,7 +1563,7 @@ class CCTM {
 			if ( is_array($hash[$key]) ) {
 				return $hash[$key];
 			}
-			// Warning: stripslashes was added to avoid some weird behavior
+			// Warning: stripslashes was added to avoid some weird behavior... but beware, it causes others
 			else {
 				return esc_html(stripslashes($hash[$key]));
 			}
@@ -1307,7 +1638,7 @@ class CCTM {
 			if (isset(self::$data['post_type_defs'][$post_type]['is_active'])) {
 				$custom_fields = self::get_value(self::$data['post_type_defs'][$post_type], 'custom_fields', array() );
 				
-				// We gotta convert the fieldname to fieldtype
+				// We gotta lookup the fieldtype by the name
 				foreach ($custom_fields as $cf) {
 					if (!isset(self::$data['custom_field_defs'][$cf])) {
 						// unset this? 
@@ -1316,28 +1647,29 @@ class CCTM {
 					// Get an array of field-types for this 
 					$fieldtype = self::get_value(self::$data['custom_field_defs'][$cf], 'type');
 					if (!empty($fieldtype)) {
-						$field_types[] = $fieldtype;
+						$field_types[$fieldtype][] = $cf;
 					}
 				}
 			}
 		}
 		// Create custom field definitions
 		elseif ( $page == 'admin.php' && $action == 'create_custom_field') {
-			$field_types[] = $fieldtype;
+			$field_types[$fieldtype] = array();
 		}
 		// Edit custom field definitions (the name is specified, not the type)
 		elseif ( $page == 'admin.php' && $action == 'edit_custom_field' && isset(self::$data['custom_field_defs'][$fieldname])) {
 			$fieldtype = self::get_value(self::$data['custom_field_defs'][$fieldname], 'type');
-			$field_types[] = $fieldtype;
+			$field_types[$fieldtype][] = $fieldname;
 		}
 		elseif ($page == 'admin.php' && $action =='duplicate_custom_field') {
-			$field_types[] = CCTM::get_value($_GET,'type');
+            $fieldtype = CCTM::get_value($_GET,'type');
+			$field_types[$fieldtype] = array(); 
 		}
 
 		// We only get here if we survived the gauntlet above
-		foreach ($field_types as $shortname) {
-			if ($FieldObj = CCTM::load_object($shortname, 'fields')) {			
-				$FieldObj->admin_init();
+		foreach ($field_types as $ft => $fieldlist) {
+			if ($FieldObj = CCTM::load_object($ft, 'fields')) {			
+				$FieldObj->admin_init($fieldlist);
 			}
 		}
 
@@ -1595,7 +1927,19 @@ class CCTM {
 	public static function load_object($shortname, $type) {
 	
 		$path = '';	
-		$object_classname = self::classname_prefix . $shortname;
+		$object_classname = '';
+		switch ($type) {
+			case 'fields':
+				$object_classname = self::field_prefix . $shortname;
+				break;
+			case 'filters':
+				$object_classname = self::filter_prefix . $shortname;
+				break;
+			case 'validators':
+				$object_classname = self::validator_prefix . $shortname;
+				break;
+		}
+		
 
 		// Already included?
 		if (class_exists($object_classname)) {
@@ -1729,7 +2073,25 @@ class CCTM {
 		die('View file does not exist: ' .$path.$filename);
 	}
 
-
+    //------------------------------------------------------------------------------
+    /**
+     * Simple logging function
+     * @param string $msg to be logged
+     * 
+     */
+    public static function log($msg, $file='unknown', $line='?') {
+        if (defined('CCTM_DEBUG')) {
+            if (CCTM_DEBUG === true) {
+                error_log($msg);
+            }
+            else {	
+                $myFile = CCTM_DEBUG;
+                $fh = fopen($myFile, 'a') or die("CCTM Failure: Can't open file for appending: ".CCTM_DEBUG);
+                fwrite($fh, sprintf("[CCTM %s:%s] %s\n", $msg,$file,$line));
+                fclose($fh);
+            }
+        }    
+    }
 
 	//------------------------------------------------------------------------------
 	/**
@@ -1913,12 +2275,7 @@ class CCTM {
 			}
 		}
 		else {
-			if (defined('CCTM_DEBUG')) {			
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, print_r(debug_backtrace(), true));
-				fclose($fh);
-			}		
+            CCTM::log(print_r(debug_backtrace(), true),__FILE__,__LINE__);
 		}
 		
 		// Remove any unparsed [+placeholders+]
@@ -2038,12 +2395,17 @@ class CCTM {
 	 * Performs a Javascript redirect in order to refresh the page. The $url should
 	 * should include only query parameters and start with a ?, e.g. '?page=cctm'
 	 *
-	 * @param string  the CCTM admin page to redirect to.
+	 * @param string $url the CCTM (admin_ page to redirect to.
+	 * @param boolean $absolute if true, then the target URL is absolute (not in the mgr)
 	 * @return none; this prints the result.
-	 * @param string $url
 	 */
-	public static function redirect($url) {
-		print '<script type="text/javascript">window.location.replace("'.get_admin_url(false, 'admin.php').$url.'");</script>';
+	public static function redirect($url, $absolute=false) {
+		if ($absolute) {
+			print '<script type="text/javascript">window.location.replace("'.$url.'");</script>';
+		}
+		else {
+			print '<script type="text/javascript">window.location.replace("'.get_admin_url(false, 'admin.php').$url.'");</script>';
+		}
 		exit;
 	}
 
@@ -2153,8 +2515,8 @@ class CCTM {
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=111
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=112
 		//  http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=360
-
 		// 	http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=458
+		// https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=493
 		if ( substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], '/')+1) == 'edit.php' 
 			&& self::get_value($_GET, 'post_type')) {
 			return $query;
@@ -2167,12 +2529,7 @@ class CCTM {
 			unset($post_types['revision']);
 			unset($post_types['nav_menu_item']);
 			
-			if (defined('CCTM_DEBUG')) {			
-				$myFile = CCTM_DEBUG;
-				$fh = fopen($myFile, 'a') or die("can't open file");
-				fwrite($fh, 'Request post-types:'. print_r($post_types, true));
-				fclose($fh);
-			}
+			CCTM::log('Request post-types:'. print_r($post_types, true),__FILE__,__LINE__);
 
 			foreach ($post_types as $pt) {
 				if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
@@ -2190,7 +2547,7 @@ class CCTM {
 
 		}
 		// Handle Year/Month Archives
-		elseif (isset($query['year']) && isset($query['monthnum'])) {
+		elseif (!isset($query['post_type']) && isset($query['year']) && isset($query['monthnum'])) {
 			// Get only public, custom post types
 			$args = array( 'public' => true, '_builtin' => false );
 			$public_post_types = get_post_types( $args );
@@ -2210,8 +2567,8 @@ class CCTM {
 
 		}
 		// Ensure category pages show all available post-types
-		elseif ((isset($query['category_name']) && !empty($query['category_name'])) 
-			|| (isset($query['cat']) && !empty($query['cat']))) {
+		elseif (!isset($query['post_type']) && ((isset($query['category_name']) && !empty($query['category_name'])) 
+			|| (isset($query['cat']) && !empty($query['cat'])))) {
 			if (!isset($query['page'])) { // <-- on a true category page, this won't be set
 				$args = array( 'public' => true, '_builtin' => false );
 				$public_post_types = get_post_types( $args );
@@ -2317,15 +2674,6 @@ class CCTM {
 				unset($post_types['nav_menu_item']);
 //				unset($post_types['page']); // TO-DO: configure this?
 				foreach ($post_types as $pt) {
-/*
-					// we only exclude it if it was specifically excluded.
-					if (isset(self::$data['post_type_defs'][$pt]['include_in_rss']) && !self::$data['post_type_defs'][$pt]['include_in_rss']) {
-						unset($post_types[$pt]);
-					}
-					elseif('page' == $pt) {
-						unset($post_types[$pt]);
-					}
-*/
 					// See http://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=412
 					if('page' == $pt && self::get_setting('pages_in_rss_feed')) {
 						// Leave pages in.
@@ -2353,12 +2701,7 @@ class CCTM {
 			}
 		}
 		
-		if (defined('CCTM_DEBUG')) {			
-			$myFile = CCTM_DEBUG;
-			$fh = fopen($myFile, 'a') or die("can't open file");
-			fwrite($fh, print_r($query->get('post_type'), true));
-			fclose($fh);
-		}
+		CCTM::log('search_filter '.print_r($query->get('post_type'), true),__FILE__,__LINE__);
 			
 		return $query;
 	}

@@ -8,7 +8,13 @@ The thickbox appears (for example) when you create or edit a post that uses a
 relation, image, or media field.
 ------------------------------------------------------------------------------*/
 if (!defined('CCTM_PATH')) exit('No direct script access allowed');
-if (!current_user_can('edit_posts')) die('You do not have permission to do that.');
+// See https://code.google.com/p/wordpress-summarize-posts/issues/detail?id=39
+$post_type = CCTM::get_value($_POST, 'post_type', 'post');
+$cap = 'edit_posts';
+if (isset($GLOBALS['wp_post_types'][$post_type]->cap->edit_posts)) {
+	$cap = $GLOBALS['wp_post_types'][$post_type]->cap->edit_posts; 
+}
+if (!current_user_can($cap)) die('<pre>You do not have permission to do that.</pre>');
 require_once(CCTM_PATH.'/includes/CCTM_FormElement.php');
 require_once(CCTM_PATH.'/includes/SummarizePosts.php');
 require_once(CCTM_PATH.'/includes/GetPostsQuery.php');
@@ -19,6 +25,7 @@ require_once(CCTM_PATH.'/includes/GetPostsForm.php');
 $d = array(); 
 $d['search_parameters'] = '';
 $d['fieldname'] 		= '';
+$d['fieldtype']         = '';
 $d['menu']				= '';
 $d['search_form']		= '';
 $d['content']			= '';
@@ -37,9 +44,9 @@ $Form = new GetPostsForm();
 //! Validation
 // Some Tests first to see if the request is valid...
 $raw_fieldname = CCTM::get_value($_POST, 'fieldname');
-$fieldtype = CCTM::get_value($_POST, 'fieldtype');
+$d['fieldtype'] = CCTM::get_value($_POST, 'fieldtype');
 
-if (empty($raw_fieldname) && empty($fieldtype)) {
+if (empty($raw_fieldname) && empty($d['fieldtype'])) {
 	print '<pre>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($raw_fieldname).'</em>') .'</pre>';
 	return;
 }
@@ -50,36 +57,13 @@ $fieldname = preg_replace('/^'. CCTM_FormElement::css_id_prefix . '/', '', $raw_
 
 $def = CCTM::get_value(CCTM::$data['custom_field_defs'], $fieldname);
 //print '<pre>'.print_r($def, true).'</pre>';
-if (!empty($fieldtype)) {
-	$def['type'] = $fieldtype;
+if (!empty($d['fieldtype'])) {
+	$def['type'] = $d['fieldtype'];
 }
 elseif (empty($def)) {
 	print '<p>'.sprintf(__('Invalid fieldname: %s', CCTM_TXTDOMAIN), '<em>'. htmlspecialchars($fieldname).'</em>').'</p>';
 	return;
 }
-
-
-// This gets subsequent search data that gets passed when the user refines the search.
-$args = array();
-if (isset($_POST['search_parameters'])) {
-
-
-	//print '<pre> HERE...'. print_r($_POST['search_parameters'], true).'</pre>';
-//	$d['content'] .= '<pre>HERE... '. print_r($_POST['search_parameters'], true).'</pre>';
-	parse_str($_POST['search_parameters'], $args);
-
-	// Pass the "view" parameters to the view
-	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
-	$d['orderby'] = CCTM::get_value($args, 'orderby', 'ID');
-	$d['order'] = CCTM::get_value($args, 'order', 'ASC');
-	
-	// Unsest these, otherwise the query will try to search them as custom field values.
-	unset($args['page_number']);
-	unset($args['fieldname']);
-	
-}
-
-
 
 // Set up search boundaries (i.e. the parameters used when nothing else is specified).
 // Load up the config...
@@ -91,6 +75,24 @@ $possible_configs[] = '/config/post_selector/_relation.php'; 		// default
 CCTM::$post_selector = array();
 if (!CCTM::load_file($possible_configs)) {
 	print '<p>'.__('Post Selector configuration file not found.', CCTM_TXTDOMAIN) .'</p>';	
+}
+
+
+// This gets subsequent search data that gets passed when the user refines the search.
+$args = array();
+if (isset($_POST['search_parameters'])) {
+
+	parse_str($_POST['search_parameters'], $args);
+
+	// Pass the "view" parameters to the view
+	$d['page_number'] = CCTM::get_value($args, 'page_number', 0);
+	$d['orderby'] = CCTM::get_value($args, 'orderby', 'ID');
+	$d['order'] = CCTM::get_value($args, 'order', 'ASC');
+	
+	// Unsest these, otherwise the query will try to search them as custom field values.
+	unset($args['page_number']);
+	unset($args['fieldname']);
+	unset($args['fieldtype']);
 }
 
 // Set search boundaries (i.e. the parameters used when nothing is specified)
@@ -107,7 +109,7 @@ if (isset($def['search_parameters'])) {
 }
 $additional_defaults = array();
 parse_str($search_parameters_str, $additional_defaults);
-//print '<pre>'.print_r($additional_defaults,true).'</pre>';
+
 foreach($additional_defaults as $k => $v) {
 	if (!empty($v)) {
 		CCTM::$post_selector[$k] = $v;
@@ -119,8 +121,6 @@ foreach($additional_defaults as $k => $v) {
 // Begin!
 //------------------------------------------------------------------------------
 $Q = new GetPostsQuery(); 
-// print '<pre>'.print_r(CCTM::$post_selector, true) . '</pre>';
-//$Q->set_defaults(CCTM::$post_selector); // BRoken!
 
 foreach(CCTM::$post_selector as $k => $v) {
 	if (!isset($args[$k]) || empty($args[$k])) {

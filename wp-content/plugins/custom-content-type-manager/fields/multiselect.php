@@ -29,7 +29,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	/**
 	 * Register the appropriatejs
 	 */
-	public function admin_init() {
+	public function admin_init($fieldlist=array()) {
 		wp_register_script('cctm_dropdown', CCTM_URL.'/js/dropdown.js', array('jquery'));
 		wp_enqueue_script('cctm_dropdown');
 	}
@@ -89,7 +89,7 @@ class CCTM_multiselect extends CCTM_FormElement
 	 */
 	public function get_edit_field_instance($current_value) {
 
-		$this->id = $this->name; 
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$optiontpl = '';
 		$fieldtpl = '';
@@ -129,8 +129,56 @@ class CCTM_multiselect extends CCTM_FormElement
 			);
 		}
 		
-				
-		// $current_values_arr: represents what's actually been selected.
+		// See https://code.google.com/p/wordpress-custom-content-type-manager/issues/detail?id=463
+		if ($this->is_sql) {
+			if (empty($this->alternate_input)) {
+				return __('Alternate input must not be empty if SQL box is checked.', CCTM_TXTDOMAIN);
+			}
+			else {
+				global $wpdb;
+				global $table_prefix;
+				$wpdb->hide_errors();
+				$query = CCTM::parse($this->alternate_input, array('table_prefix'=>$table_prefix));
+				//return $query;
+				$results = $wpdb->get_results($query, ARRAY_N);
+				if ($wpdb->last_error) {
+					return $wpdb->last_error;
+				}
+				$options = array();
+				$values = array();
+				foreach ($results as $r_i => $r) {
+					$options[$r_i] = $r[0];
+					if (isset($r[1])) {
+						$values[$r_i] = $r[1];
+					}
+					else {
+						$values[$r_i] = $r[0];
+					}
+				}
+				$this->set_prop('options', $options);
+				$this->set_prop('values', $values);
+			}
+		}
+		// Bulk input
+		elseif (!$this->is_sql && !empty($this->alternate_input)) {
+			$options = array();
+			$values = array();
+			$mixed = explode("\n",$this->alternate_input);
+			foreach($mixed as $m_i => $m) {
+				$line = explode('||',$m);
+				$options[$m_i] = trim($line[0]);
+				if (isset($line[1])) {
+					$values[$m_i] = trim($line[1]);
+				}
+				else {
+					$values[$m_i] = trim($line[0]);
+				}
+			}
+			$this->set_prop('options', $options);
+			$this->set_prop('values', $values);			
+		}
+        
+        // $current_values_arr: represents what's actually been selected.
 		//$current_values_arr = (array) json_decode(html_entity_decode($current_value), true );
 		$current_values_arr = $this->get_value(html_entity_decode($current_value), 'to_array');
 	
@@ -227,7 +275,8 @@ class CCTM_multiselect extends CCTM_FormElement
 					<table><tr><td width="600" style="vertical-align:top">';
 
 		// Use Key => Value Pairs?  (if not, the simple usage is simple options)
-		$out .= '<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
+		$out .= '<input type="hidden" name="use_key_values" value="0"/>
+				<div class="'.self::wrapper_css_class .'" id="use_key_values_wrapper">
 				 <label for="use_key_values" class="cctm_label cctm_checkbox_label" id="use_key_values_label">'
 					. __('Distinct options/values?', CCTM_TXTDOMAIN) .
 			 	'</label>
@@ -350,7 +399,7 @@ class CCTM_multiselect extends CCTM_FormElement
 
 		// Execute as MySQL?
 		$out .= '<div class="'.self::wrapper_css_class .'" id="is_sql_wrapper">
-
+				<input type="hidden" name="is_sql" value="0"/>
 				 <input type="checkbox" name="is_sql" class="cctm_checkbox" id="is_sql" value="1"'. $is_sql_checked.'/> 				 <label for="is_sql" class="cctm_label cctm_checkbox_label" id="is_sql_label">'
 				 .__('Execute as a MySQL query?', CCTM_TXTDOMAIN).'</label> <span>'.__('Select up to 2 columns: the 1st column will be the visible label and the 2nd column (if present) will represent the value stored in the database.
 				 	Use [+table_prefix+] instead of hard-coding your WordPress database table prefix.',CCTM_TXTDOMAIN).'</span>
@@ -371,6 +420,23 @@ class CCTM_multiselect extends CCTM_FormElement
 		return $out;
 	}
 
+    //------------------------------------------------------------------------------
+    /**
+     * The option desc. here is simply a list of the options OR the SQL query alt.
+     */
+    public function get_options_desc() {
+        if (!empty($this->props['options'])) {
+            $options = implode(', ',$this->props['options']);
+        }
+        else {
+            $options = $this->props['alternate_input'];        
+        }
+        if (strlen($options) > 50) {
+            $options = substr($options, 0, 50). '&hellip;';
+        }
+        return $options;
+    }
+    
 	//------------------------------------------------------------------------------
 	/**
 	 * Validate and sanitize any submitted data. Used when editing the definition for 

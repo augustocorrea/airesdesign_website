@@ -24,8 +24,10 @@ class CCTM_hidden extends CCTM_FormElement {
 		'required' => '',
 		'evaluate_create_value' => 0,
 		'evaluate_update_value' => 0,
+		'evaluate_onsave' => 0,
 		'create_value_code' => '',
 		'update_value_code' => '',
+		'onsave_code' => '',
 		// 'type' => '', // auto-populated: the name of the class, minus the CCTM_ prefix.
 	);
 
@@ -78,7 +80,7 @@ class CCTM_hidden extends CCTM_FormElement {
 	public function get_create_field_instance() {
 
 		// Populate the values (i.e. properties) of this field
-		$this->id      = $this->name;
+		$this->id      = str_replace(array('[',']',' '), '_', $this->name);
 
 		$fieldtpl = '';
 		$wrappertpl = '';
@@ -128,7 +130,7 @@ class CCTM_hidden extends CCTM_FormElement {
 
 		$fieldtpl = CCTM::load_tpl(
 			array('fields/elements/'.$this->name.'.tpl'
-				, 'fields/elements/_text.tpl'
+				, 'fields/elements/_hidden.tpl'
 				, 'fields/elements/_default.tpl'
 			)
 		);
@@ -145,18 +147,24 @@ class CCTM_hidden extends CCTM_FormElement {
 	 * @return string
 	 */
 	public function get_edit_field_definition($def) {
+	   // eval update/create value = euv/ecv
 		$is_ecv_checked = '';
 		$is_euv_checked = '';
+		$is_onsave_checked = '';
+		
 		if (isset($def['evaluate_create_value']) && $def['evaluate_create_value'] == 1) {
 			$is_ecv_checked = 'checked="checked"';
 		}
 		if (isset($def['evaluate_update_value']) && $def['evaluate_update_value'] == 1) {
 			$is_euv_checked = 'checked="checked"';
 		}
+		if (isset($def['evaluate_onsave']) && $def['evaluate_onsave'] == 1) {
+			$is_onsave_checked = 'checked="checked"';
+		}
 	
 		// Standard
 		$out = $this->format_standard_fields($def, false);
-
+		
 		// Evaluate Default Value (use PHP eval)
 		$out .= '
 			<div class="postbox">
@@ -165,22 +173,26 @@ class CCTM_hidden extends CCTM_FormElement {
 			<div class="inside">
 			<div class="'.self::wrapper_css_class .'" id="evaluate_default_value_wrapper">
 				 <label for="evaluate_default_value" class="cctm_label cctm_checkbox_label" id="evaluate_default_value_label">'
-			. __('EXPERIMENTAL USE ONLY. Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code>).', CCTM_TXTDOMAIN) .
+			. __('EXPERIMENTAL USE ONLY. Use PHP eval to calculate values? (Omit the php tags and return a value, e.g. <code>return date(\'Y-m-d\');</code> ).', CCTM_TXTDOMAIN) .
 			'</label>
 				 <br />
 				 <input type="checkbox" name="evaluate_create_value" class="cctm_checkbox" id="evaluate_create_value" value="1" '. $is_ecv_checked.'/> '
-			.__('Check this box to evaluate the PHP code in the "New Values" box when creating new posts.', CCTM_TXTDOMAIN).'<br/>
+			.__('Evaluate "OnCreate". This happens when the form for a new post is drawn.', CCTM_TXTDOMAIN).'<br/>
 			
 				<input type="checkbox" name="evaluate_update_value" class="cctm_checkbox" id="evaluate_update_value" value="1" '. $is_euv_checked.'/> '
-			.__('Check this box to evaluate the PHP code in the "Updated Values" box when updating posts.', CCTM_TXTDOMAIN).'
+			.__('Evaluate "OnEdit".  This happens when the form for an existing post is drawn.', CCTM_TXTDOMAIN).'<br/>
+    			<input type="checkbox" name="evaluate_onsave" class="cctm_checkbox" id="evaluate_onsave" value="1" '. $is_onsave_checked.'/> '
+			.__('Evaluate "OnSave". This happens when the post form is submitted.', CCTM_TXTDOMAIN).'
 			 </div>
 			 
 			 <div class="'.self::wrapper_css_class .'" id="evaluate_create_value_wrapper">
-			 		<label for="create_value_code" class="cctm_label cctm_textarea_label" id="create_value_code_label">'.__('New Values',CCTM_TXTDOMAIN).'</label>
+			 		<label for="create_value_code" class="cctm_label cctm_textarea_label" id="create_value_code_label">'.__('OnCreate',CCTM_TXTDOMAIN).'</label>
 
 			 		<textarea id="evaluate_create_value" name="create_value_code" rows="5" cols="60">'.$def['create_value_code'].'</textarea>
-			 		<label for="evaluate_update_value" class="cctm_label cctm_textarea_label" id="evaluate_update_value_label">'.__('Updated Values', CCTM_TXTDOMAIN).'</label>
+			 		<label for="evaluate_update_value" class="cctm_label cctm_textarea_label" id="evaluate_update_value_label">'.__('OnEdit', CCTM_TXTDOMAIN).'</label>
 			 		<textarea id="evaluate_update_value" name="update_value_code" rows="5" cols="60">'.$def['update_value_code'].'</textarea>
+			 		<label for="onsave_code" class="cctm_label cctm_textarea_label" id="onsave_code_label">'.__('OnSave', CCTM_TXTDOMAIN).'</label>
+			 		<textarea id="onsave_code" name="onsave_code" rows="5" cols="60">'.$def['onsave_code'].'</textarea>
 			 	
 			 </div>
 			 	
@@ -194,6 +206,30 @@ class CCTM_hidden extends CCTM_FormElement {
 		return $out;
 	}
 
+	//------------------------------------------------------------------------------
+	/**
+	 * See docs in parent class.  This is here so we can eval code onsave.
+	 *
+	 * @param mixed   $posted_data $_POST data
+	 * @param string  $field_name: the unique name for this instance of the field
+	 * @return string whatever value you want to store in the wp_postmeta table where meta_key = $field_name
+	 */
+	public function save_post_filter($posted_data, $field_name) {
+	
+		global $wp_version;
+	
+		if ( isset($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]) ) {
+            if ($this->evaluate_onsave) {
+                return eval($this->onsave_code);
+            }
+            else {
+                return stripslashes(trim($posted_data[ CCTM_FormElement::post_name_prefix . $field_name ]));
+            }
+		}
+		else {
+			return '';
+		}
+	}
 
 }
 

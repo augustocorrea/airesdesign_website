@@ -1,5 +1,5 @@
 jQuery(document).ready(function($) {
-    
+
     // Enable the correct options for this slider type
     var switchType = function(slider) {
         jQuery('.metaslider .option:not(.' + slider + ')').attr('disabled', 'disabled').parents('tr').hide();
@@ -8,6 +8,11 @@ jQuery(document).ready(function($) {
         // make sure that the selected option is available for this slider type
         if (jQuery('.effect option:selected').attr('disabled') === 'disabled') {
             jQuery('.effect option:enabled:first').attr('selected', 'selected');
+        }
+
+        // make sure that the selected option is available for this slider type
+        if (jQuery('.theme option:selected').attr('disabled') === 'disabled') {
+            jQuery('.theme option:enabled:first').attr('selected', 'selected');
         }
 
         // slides - set red background on incompatible slides
@@ -52,6 +57,12 @@ jQuery(document).ready(function($) {
         return confirm(metaslider.confirm);
     });
 
+    $('.useWithCaution').change(function(){
+        if(!this.checked) {
+            return alert(metaslider.useWithCaution);
+        }
+    });
+
     // show the confirm dialogue
     jQuery(".toggle").live('click', function(e) {
         e.preventDefault();
@@ -59,8 +70,8 @@ jQuery(document).ready(function($) {
     });
 
     // helptext tooltips
-    jQuery(".metaslider .tooltip").tipsy({className: 'msTipsy', live: true, delayIn: 1000, html: true, fade: true, gravity: 'e'});
-    jQuery(".metaslider .tooltiptop").tipsy({live: true, delayIn: 1000, html: true, fade: true, gravity: 'se'});
+    jQuery(".metaslider .tipsy-tooltip").tipsy({className: 'msTipsy', live: true, delayIn: 500, html: true, fade: true, gravity: 'e'});
+    jQuery(".metaslider .tipsy-tooltip-top").tipsy({live: true, delayIn: 500, html: true, fade: true, gravity: 'se'});
 
     // Select input field contents when clicked
     jQuery(".metaslider .shortcode input").click(function() {
@@ -95,7 +106,15 @@ jQuery(document).ready(function($) {
 
     // return lightbox height
     var getLightboxHeight = function() {
-        return parseInt(jQuery('input.height').val(), 10) + 80 + 'px';
+        var height = parseInt(jQuery('input.height').val(), 10);
+
+        if (!isNaN(height)) {
+            height = height + 80 + 'px'
+        } else {
+            height = '70%';
+        }
+
+        return height;
     };
 
     // AJAX save & preview

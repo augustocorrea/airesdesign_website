@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: cms, content management, custom post types, custom content types, custom fields, images, image fields, ecommerce, modx
 Requires at least: 3.3.0
 Tested up to: 3.5.1
-Stable tag: 0.9.7
-Version: 0.9.7
+Stable tag: 0.9.7.6
+Version: 0.9.7.6
 
 Break out of your blog!  Create custom fields for dropdowns, images, and more!  This plugin gives Wordpress true CMS functionality.
 
@@ -13,7 +13,7 @@ Break out of your blog!  Create custom fields for dropdowns, images, and more!  
 
 http://www.youtube.com/watch?v=rbRHrdKwo5A
 
-The Custom Content Type Manager requires WordPress 3.3.  It allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images. This gives WordPress CMS functionality: Break out of your Blog!
+The Custom Content Type Manager (CCTM) allows users to create custom content types (also known as post types) and standardized custom fields for each, including dropdowns, checkboxes, and images and more! This gives WordPress CMS functionality: Break out of your Blog!
 
 You can select multiple images, posts, or media items to be stored in a single field making it easy for you to store a gallery of images or long lists of values.  This plugin also lets you export and import your content definitions, making it easy to ensure a similar structure between multiple sites.
 
@@ -29,6 +29,13 @@ Please use the following links for support and discussion:
 * Participate in the [Forum](http://wordpress.org/tags/custom-content-type-manager?forum_id=10)
 * File [Bug reports](http://code.google.com/p/wordpress-custom-content-type-manager/issues/list) or make feature requests.
 * Read the [Official documentation](http://code.google.com/p/wordpress-custom-content-type-manager/)
+
+= Requirements =
+
+* WordPress 3.3.0 or greater
+* PHP 5.2.6 or greater (5.3 recommended)
+* MySQL 4.1.2 or greater (5.x recommended)
+
 
 == Installation ==
 
@@ -77,6 +84,31 @@ You can always checkout the most recent version of the code at
 or by going to your wp-content/plugins directory and executing the following command from the command-line:
 
 	svn checkout http://plugins.svn.wordpress.org/custom-content-type-manager/trunk custom-content-type-manager 
+
+= 0.9.7.6 =
+
+* Fixes bug with pagination in the Thickbox (used for all relation, image, and media fields).
+
+= 0.9.7.5 =
+
+* Adding new Relation-Meta field.
+* Various other bug-fixes.
+
+= 0.9.7.4 =
+
+* Fixes a few more minor fixes.
+
+= 0.9.7.3 =
+
+* Fixes glitch in 0.9.7.2 in Summarize Posts shortcode.
+* Unit Tests added for Summarize Posts shortcode and operators.
+
+= 0.9.7.1 =
+
+* Added support for cctm_post_form shortcode: now you can have users on the front-end create posts (see feature request 132).
+* Added "join" argument to GetPostsQuery::get_posts()
+* Added datef output filter for date formatting.
+* Added number output filter for number formatting.
 
 = 0.9.7 = 
 
@@ -403,6 +435,26 @@ And if you REALLY want some of these features implemented, you can hire me to co
 
 
 == Upgrade Notice ==
+
+= 0.9.7.6 =
+
+* All users of 0.9.7.3-5 should upgrade. Fixes bug with pagination in the Thickbox (used for all relation, image, and media fields).
+
+= 0.9.7.5 =
+
+* Added Relation-Meta field. If you have customized any of your manager tpls (especially for any relation, image, or media fields) then please note the new function arguments for the thickbox_results() and cctm_upload() javascript functions!  It is recommended you rename your uploads/cctm folder prior to upgrading and clear your tpl cache (CCTM -> Clear Cache): this will force the default tpls to load, and then you can re-add your customizations.
+
+= 0.9.7.4 =
+
+* Includes some minor fixes for bugs, including for the summarize_posts shortcode.
+
+= 0.9.7.3 =
+
+* Patches glitch in 0.9.7.2 -- all users of 0.9.7.2 should run this upgrade.
+
+= 0.9.7.1 =
+
+* Implemented new post-creation shortcode for users wishing to create forms on the front-end.  Notice to developers: the class prefix for custom Output Filters has changed.  Includes various bug fixes.
 
 = 0.9.7 = 
 

@@ -72,14 +72,12 @@ class Theme_My_Login_Themed_Profiles_Admin extends Theme_My_Login_Abstract {
 			$page_id = wp_insert_post( array(
 				'post_title'     => __( 'Your Profile' ),
 				'post_status'    => 'publish',
-				'post_type'      => 'tml_page',
+				'post_type'      => 'page',
 				'post_content'   => '[theme-my-login]',
 				'comment_status' => 'closed',
 				'ping_status'    => 'closed'
 			) );
 			update_post_meta( $page_id, '_tml_action', 'profile' );
-
-			flush_rewrite_rules( false );
 		}
 	}
 
@@ -202,8 +200,8 @@ class Theme_My_Login_Themed_Profiles_Admin extends Theme_My_Login_Abstract {
 		foreach( $wp_roles->get_names() as $role => $role_name ) {
 			if ( 'pending' != $role ) {
 				$settings[$role] = array(
-					'theme_profile'  => isset( $settings[$role]['theme_profile']  ),
-					'restrict_admin' => isset( $settings[$role]['restrict_admin'] )
+					'theme_profile'  => ! empty( $settings[$role]['theme_profile']  ),
+					'restrict_admin' => ! empty( $settings[$role]['restrict_admin'] )
 				);
 			}
 		}

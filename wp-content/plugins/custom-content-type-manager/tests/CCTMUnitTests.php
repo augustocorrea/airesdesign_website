@@ -269,6 +269,9 @@ class CCTMUnitTests extends UnitTestCase {
 		
 		$post_title = CCTM::filter(1,'get_post','[+post_title+]');
 		$this->assertTrue($post_title =='Post1');
+		
+		$result = CCTM::filter(null,'get_post','[+post_title+]');
+		$this->assertTrue($result ==false);
 	}
 	
 	// raw
@@ -364,9 +367,13 @@ class CCTMUnitTests extends UnitTestCase {
 	}
 	function testFilter91() {
 		$links = CCTM::filter(array('80','11'),'to_link');
-		$this->assertTrue($links[0]=='<a href="http://cctm:8888/harry-potter/" title="Harry Potter">Harry Potter</a>');
-		$this->assertTrue($links[1]=='<a href="http://cctm:8888/post5/" title="Post5">Post5</a>');
+		$this->assertTrue($links=='<a href="http://cctm:8888/harry-potter/" title="Harry Potter">Harry Potter</a>, <a href="http://cctm:8888/post5/" title="Post5">Post5</a>');
 	}
+	function testFilter92() {
+		$link = CCTM::filter('80','to_link','Click Me');
+		$this->assertTrue($link=='<a href="http://cctm:8888/harry-potter/" title="Harry Potter">Click Me</a>');
+	}
+
 
 	// userinfo
 	function testFilter100() {
@@ -391,6 +398,14 @@ class CCTMUnitTests extends UnitTestCase {
 		$txt = CCTM::filter('Big Stuff','wrapper','<strong>[+content+]</strong>');
 		$this->assertTrue($txt =='<strong>Big Stuff</strong>');
 	}
+	
+	// help
+/*
+	function testFilter120() {
+		$txt = CCTM::filter('ignore','help');
+		$this->assertTrue(in_html('Output Filter Help',$txt));
+	}
+*/
 	
 	
 		
