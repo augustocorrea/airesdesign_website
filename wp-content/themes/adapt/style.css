@@ -269,7 +269,7 @@ blockquote.right{
 /*-----------------------------------------------------------------------------------*/
 #page-heading{
 	position: relative;
-	padding-bottom: 25px;
+	padding-bottom: 20px;
 }
 
 #page-heading h1,
@@ -302,7 +302,7 @@ h2.heading span{
 /*-------------------------------------------------*/
 #masterhead {
 	position: relative;
-	padding: 30px 0;
+	padding: 20px 0;
 	border-bottom: 1px solid #777;
 }
 #logo{
@@ -325,7 +325,7 @@ h2.heading span{
 #masternav {
 	position: absolute;
 	right: -10px;
-	top: 50%;
+	top: 88px;
 	margin-top: -20px;
 	height: 40px;
 	font-size: 11px;

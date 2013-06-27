@@ -58,8 +58,7 @@ img{ max-width: 100%; }
 	.flexslider .caption{ display: none; }
 	
 	#logo a {
-    background-size: 150px;
-    height: 60px;	
+    background-size: 150px;	
 	}
 	
 	/*display dropdown nav*/

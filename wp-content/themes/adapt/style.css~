@@ -269,15 +269,18 @@ blockquote.right{
 /*-----------------------------------------------------------------------------------*/
 #page-heading{
 	position: relative;
-	margin-bottom: 30px;
 	padding-bottom: 25px;
-	/*border-bottom: 5px solid #444;*/
 }
+
 #page-heading h1,
 #page-heading h2{
 	font-size: 21px;
 	line-height: 1em;
 	margin: 0px !important;
+}
+
+#page-heading h1 {
+	font-size: 26px;
 }
 
 h2.heading{
@@ -289,6 +292,7 @@ h2.heading{
 }
 h2.heading span{
 	background: #fff;
+	font-size: 25px;
 	padding: 0 20px;
 }
 
@@ -298,7 +302,7 @@ h2.heading span{
 /*-------------------------------------------------*/
 #masterhead {
 	position: relative;
-	padding: 30px 0;
+	padding: 20px 0;
 	border-bottom: 1px solid #777;
 }
 #logo{
@@ -321,7 +325,7 @@ h2.heading span{
 #masternav {
 	position: absolute;
 	right: -10px;
-	top: 50%;
+	top: 88px;
 	margin-top: -20px;
 	height: 40px;
 	font-size: 11px;
@@ -370,13 +374,14 @@ ul.sf-menu li li.sfHover ul {
 }
 .sf-menu a {
 	height: 40px;
-	line-height: 40px;
+	line-height: 48px;
+	font-size: 16px;
 	display: block;
 	float: left;
 	font-weight: normal;
-    color: #999;
+  color: #999;
 	padding: 0 10px;
-    text-decoration: none;
+  text-decoration: none;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
@@ -461,7 +466,7 @@ ul.sf-menu li li.sfHover ul {
 	font-size: 16px;
 	text-transform: uppercase;
 	margin-top: 0px;
-	margin-bottom: 15px;
+	margin-bottom: 5px;
 }
 .hp-highlight h2 span{
 	margin-right: 10px;
@@ -706,7 +711,9 @@ ul.filter a.active{
 	float: right;
 	width: 41%;
 }
-
+#single-portfolio-right p{
+	font-size: 14px;
+}
 #single-portfolio-left h1{
 	font-size: 18px;
 	line-height: 1em;
@@ -1663,4 +1670,17 @@ span.wpcf7-not-valid-tip{
       -ms-transition-duration: 0s;
        -o-transition-duration: 0s;
           transition-duration: 0s;
+}
+
+/*Portfolio*/
+.btn_portfolio {
+	background-color: #A7CE21;
+	font-size: 14px;
+	height: 100%;
+	padding: 7px;
+	text-align: center;
+	width: 90px;
+}
+.btn_portfolio a {
+	color: #fff;
 }
