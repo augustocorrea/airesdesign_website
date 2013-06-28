@@ -338,11 +338,10 @@ h2.heading span{
 /*-------------------------------------------------*/
 #masternav {
 	position: absolute;
-	right: -10px;
-	top: 88px;
-	margin-top: -20px;
-	height: 40px;
-	font-size: 11px;
+right: 0px;
+
+height: 100px;
+font-size: 11px;
 }
 /*** ESSENTIAL masternav Style ***/
 .sf-menu,
@@ -363,8 +362,23 @@ h2.heading span{
 }
 .sf-menu li {
     float: left;
+    height: 100px;
     position: relative;
 }
+
+.sf-menu li:hover {
+    background: #029bf1; /* Old browsers */
+	background: -moz-linear-gradient(top,  #029bf1 0%, #2989d8 50%, #2989d8 50%, #029bf1 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#029bf1), color-stop(50%,#2989d8), color-stop(50%,#2989d8), color-stop(100%,#029bf1)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#029bf1', endColorstr='#029bf1',GradientType=0 ); /* IE6-9 */
+}
+.sf-menu li ul li:hover {
+	background: none;
+} 
 .sf-menu a {
     display: block;
     position: relative;
@@ -385,17 +399,18 @@ ul.sf-menu li li.sfHover ul {
 /*** masternav skin ***/
 .sf-menu {
     float: left;
+    height: 100px;
 }
 .sf-menu a {
-	height: 40px;
+	height: 100px;
 	line-height: 48px;
 	font-size: 16px;
 	display: block;
 	float: left;
 	font-weight: normal;
-  color: #999;
-	padding: 0 10px;
-  text-decoration: none;
+ 	color: #999;
+	padding: 47px 10px 0;
+  	text-decoration: none;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
