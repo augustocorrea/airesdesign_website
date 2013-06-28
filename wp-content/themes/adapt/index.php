@@ -115,7 +115,7 @@ $options = get_option( 'adapt_theme_settings' );
     ?>
     <?php if($blog_posts) { ?>        
         <section id="home-posts" class="clearfix">
-            <h2 class="heading"><span><?php if(!empty($options['recent_work_text'])) { echo $options['recent_news_text']; } else { _e('Nuestros Servicios','adapt'); }?></span></h2>
+            <h2 class="heading"><span><?php if(!empty($options['recent_work_text'])) { echo $options['recent_news_text']; } else { _e('Novedades','adapt'); }?></span></h2>
             <?php
             $count=0;
             foreach($blog_posts as $post) : setup_postdata($post);
