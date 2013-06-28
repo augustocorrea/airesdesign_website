@@ -1425,10 +1425,10 @@ span.wpcf7-not-valid-tip{
 	margin-right: 20px;
 }
 #footer-four{
+	float: right;
 	margin: 0;
+	width: 356px;
 }
-
-
 .footer-widget{
 	color: #7f7f7f;
 	margin: 25px 0;
