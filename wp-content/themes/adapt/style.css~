@@ -269,7 +269,7 @@ blockquote.right{
 /*-----------------------------------------------------------------------------------*/
 #page-heading{
 	position: relative;
-	padding-bottom: 25px;
+	padding-bottom: 20px;
 }
 
 #page-heading h1,
