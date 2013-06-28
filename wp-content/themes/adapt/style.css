@@ -14,6 +14,7 @@
 
 /*google font*/
 @import url(http://fonts.googleapis.com/css?family=Droid+Serif:400,400italic,700,700italic);
+@import url(http://fonts.googleapis.com/css?family=Cabin+Condensed);
 
 /*-----------------------------------------------------------------------------------*
 /* = Reset default browser CSS. Based on work by Eric Meyer: http://meyerweb.com/eric/tools/css/reset/index.html
@@ -176,17 +177,23 @@ h1,
 h2,
 h3,
 h4 {
-    color: #000;
-    line-height: 1.5em;
+  color: #000;
+  line-height: 1.5em;
 	font-weight: normal;
 	word-spacing: 2px;
 }
 h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    line-height: 1.2em;
+  font-family: 'Cabin Condensed';
+  font-size: 28px;
+  margin-bottom: 20px;
+  line-height: 1.2em;
+  color: #555;
+  font-weight: bold;
 }
-h2 { font-size: 18px }
+h2 { 
+  font-size: 17px; 
+  color: #0c7ab8;
+}
 h3 { font-size: 16px }
 h4 { font-size: 14px; }
 h2,
