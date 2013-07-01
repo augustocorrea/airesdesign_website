@@ -1,1 +1,1 @@
-<p><?php _e('Sorry, there has been a problem and your message was not sent.','cleanandsimple') ?></p>
+<p><?php _e('Disculpe, se ha producido un error y su mensaje no ha sido enviado, aguarde unos minutos e intente nuevamente. Muchas gracias.','cleanandsimple') ?></p>

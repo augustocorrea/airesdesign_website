@@ -64,7 +64,7 @@ class cff_Contact
 
         //name
         
-        if (strlen($this->Name) == 0) $this->Errors['Name'] = __('Please give your name.','cleanandsimple');
+        if (strlen($this->Name) == 0) $this->Errors['Name'] = __('Please Confirm your name.','cleanandsimple');
 
         //message
         
