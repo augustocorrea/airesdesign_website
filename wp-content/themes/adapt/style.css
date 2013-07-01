@@ -377,6 +377,7 @@ font-size: 11px;
 }
 .sf-menu li ul li:hover {
 	background: none;
+	background-color: #fff;
 } 
 .sf-menu a {
     display: block;
