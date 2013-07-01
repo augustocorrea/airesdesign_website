@@ -38,6 +38,34 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	vertical-align: baseline;
 }
 
+/* Form */
+
+#frmContact label {
+  padding: 15px 0 7px 0;
+  display: block;
+}
+
+#frmContact label[for="cf-Message"] {
+  padding: 15px 0 0px 0;
+}
+
+#frmContact textarea,
+#frmContact input {
+  width: 400px;
+}
+
+#frmContact .btn {
+  background-color: #A7CE21;
+  font-size: 14px;
+  height: 100%;
+  padding: 7px;
+  text-align: center;
+  width: 150px;
+  color: #ffffff;
+  border: 0;
+  margin-top: 10px;
+}
+
 /* remember to define focus styles! */
 :focus {
 	outline: 0;
