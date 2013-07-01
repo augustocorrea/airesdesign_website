@@ -63,6 +63,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
   width: 150px;
   color: #ffffff;
   border: 0;
+  margin-top: 10px;
 }
 
 /* remember to define focus styles! */
@@ -101,7 +102,10 @@ figure img {
 	max-width: 100%;
 }
 
-
+.error .controls span {
+	color: red;
+	font-size: 11px;
+}
 /* Block elements */
 header, hgroup, footer, section, article, aside {
 	display: block;
