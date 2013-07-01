@@ -22,11 +22,11 @@
 
 	<header>
         <h1 class="single-title"><?php the_title(); ?></h1>
-        <div class="post-meta">
+        <!--<div class="post-meta">
             <span class="awesome-icon-calendar"></span><?php _e('On','surplus'); ?> <?php the_time('j'); ?> <?php the_time('M'); ?>, <?php the_time('Y'); ?>
             <span class="awesome-icon-user"></span><?php _e('By', 'surplus'); ?> <?php the_author_posts_link(); ?>
             <span class="awesome-icon-comments"></span><?php _e('With', 'surplus'); ?>  <?php comments_popup_link('0 Comments', '1 Comment', '% Comments'); ?>
-        </div>
+        </div>-->
         <!-- /loop-entry-meta -->
     </header>
 

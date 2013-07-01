@@ -11,7 +11,7 @@
 		if (have_posts()) : ?>
         
 		<header id="page-heading">
-			<h1 id="archive-title"><?php _e('Search Results For', 'adapt'); ?>: <?php the_search_query(); ?></h1>
+			<h1 id="archive-title"><?php _e('Resultados de búsqueda para', 'adapt'); ?>: <?php the_search_query(); ?></h1>
 		</header>
 		<!-- /page-heading -->
             
@@ -24,12 +24,12 @@
 		<?php else : ?>
         
         <header id="page-heading">
-            <h1 id="archive-title"><?php _e('Search Results For', 'adapt'); ?> "<?php the_search_query(); ?>"</h1>
+            <h1 id="archive-title"><?php _e('Resultados de búsqueda para', 'adapt'); ?> "<?php the_search_query(); ?>"</h1>
         </header>
         <!-- /page-heading -->
 
         <div id="post" class="post clearfix">
-            <?php _e('No results found for that query.', 'adapt'); ?>
+            <?php _e('No hay resultados para esta búsqueda.', 'adapt'); ?>
         </div>
 			<!-- /post  -->
             
