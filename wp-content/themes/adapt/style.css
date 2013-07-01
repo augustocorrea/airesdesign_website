@@ -365,7 +365,6 @@ font-size: 11px;
     height: 100px;
     position: relative;
 }
-
 .sf-menu li:hover {
     background: #029bf1; /* Old browsers */
 	background: -moz-linear-gradient(top,  #029bf1 0%, #2989d8 50%, #2989d8 50%, #029bf1 100%); /* FF3.6+ */
@@ -455,6 +454,7 @@ ul.sf-menu li li.sfHover ul {
 }
 .sf-menu ul li:last-child{
 	border-bottom: 0px;
+	height: 40px;
 }
 
 /*-----------------------------------------------------------------------------------*/
