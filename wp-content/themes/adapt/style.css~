@@ -38,6 +38,33 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	vertical-align: baseline;
 }
 
+/* Form */
+
+#frmContact label {
+  padding: 15px 0 7px 0;
+  display: block;
+}
+
+#frmContact label[for="cf-Message"] {
+  padding: 15px 0 0px 0;
+}
+
+#frmContact textarea,
+#frmContact input {
+  width: 400px;
+}
+
+#frmContact .btn {
+  background-color: #A7CE21;
+  font-size: 14px;
+  height: 100%;
+  padding: 7px;
+  text-align: center;
+  width: 150px;
+  color: #ffffff;
+  border: 0;
+}
+
 /* remember to define focus styles! */
 :focus {
 	outline: 0;
@@ -187,7 +214,7 @@ h1 {
   font-size: 28px;
   margin-bottom: 20px;
   line-height: 1.2em;
-  color: #737373;
+  color: #555;
   font-weight: bold;
 }
 h2 { 
@@ -345,11 +372,10 @@ h2.heading span{
 /*-------------------------------------------------*/
 #masternav {
 	position: absolute;
-	right: -10px;
-	top: 88px;
-	margin-top: -20px;
-	height: 40px;
-	font-size: 11px;
+right: 0px;
+
+height: 100px;
+font-size: 11px;
 }
 /*** ESSENTIAL masternav Style ***/
 .sf-menu,
@@ -370,16 +396,31 @@ h2.heading span{
 }
 .sf-menu li {
     float: left;
+    height: 100px;
     position: relative;
 }
+.sf-menu li:hover {
+    background: #029bf1; /* Old browsers */
+	background: -moz-linear-gradient(top,  #029bf1 0%, #2989d8 50%, #2989d8 50%, #029bf1 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#029bf1), color-stop(50%,#2989d8), color-stop(50%,#2989d8), color-stop(100%,#029bf1)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  #029bf1 0%,#2989d8 50%,#2989d8 50%,#029bf1 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#029bf1', endColorstr='#029bf1',GradientType=0 ); /* IE6-9 */
+}
+.sf-menu li ul li:hover {
+	background: none;
+	background-color: #fff;
+} 
 .sf-menu a {
     display: block;
     position: relative;
 }
 .sf-menu li:hover ul,
 .sf-menu li.sfHover ul {
-    left: 10px;
-    top: 40px; /* match top ul list item height */
+    left: 0px;
+    top: 101px; /* match top ul list item height */
     z-index: 99;
 }
 ul.sf-menu li:hover li ul,
@@ -392,17 +433,18 @@ ul.sf-menu li li.sfHover ul {
 /*** masternav skin ***/
 .sf-menu {
     float: left;
+    height: 100px;
 }
 .sf-menu a {
-	height: 40px;
+	height: 100px;
 	line-height: 48px;
 	font-size: 16px;
 	display: block;
 	float: left;
 	font-weight: normal;
-  color: #999;
-	padding: 0 10px;
-  text-decoration: none;
+ 	color: #999;
+	padding: 47px 10px 0;
+  	text-decoration: none;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
@@ -447,6 +489,7 @@ ul.sf-menu li li.sfHover ul {
 }
 .sf-menu ul li:last-child{
 	border-bottom: 0px;
+	height: 40px;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -1447,10 +1490,10 @@ span.wpcf7-not-valid-tip{
 	margin-right: 20px;
 }
 #footer-four{
+	float: right;
 	margin: 0;
+	width: 356px;
 }
-
-
 .footer-widget{
 	color: #7f7f7f;
 	margin: 25px 0;
