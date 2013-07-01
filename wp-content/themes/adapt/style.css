@@ -372,7 +372,6 @@ font-size: 11px;
     height: 100px;
     position: relative;
 }
-
 .sf-menu li:hover {
     background: #029bf1; /* Old browsers */
 	background: -moz-linear-gradient(top,  #029bf1 0%, #2989d8 50%, #2989d8 50%, #029bf1 100%); /* FF3.6+ */
@@ -392,8 +391,8 @@ font-size: 11px;
 }
 .sf-menu li:hover ul,
 .sf-menu li.sfHover ul {
-    left: 10px;
-    top: 40px; /* match top ul list item height */
+    left: 0px;
+    top: 101px; /* match top ul list item height */
     z-index: 99;
 }
 ul.sf-menu li:hover li ul,
@@ -462,6 +461,7 @@ ul.sf-menu li li.sfHover ul {
 }
 .sf-menu ul li:last-child{
 	border-bottom: 0px;
+	height: 40px;
 }
 
 /*-----------------------------------------------------------------------------------*/
