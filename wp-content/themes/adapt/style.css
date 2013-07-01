@@ -384,8 +384,8 @@ font-size: 11px;
 }
 .sf-menu li:hover ul,
 .sf-menu li.sfHover ul {
-    left: 10px;
-    top: 40px; /* match top ul list item height */
+    left: 0px;
+    top: 101px; /* match top ul list item height */
     z-index: 99;
 }
 ul.sf-menu li:hover li ul,
