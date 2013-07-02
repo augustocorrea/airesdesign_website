@@ -113,7 +113,17 @@ img{ max-width: 100%; }
 	#wrap{ width: 420px; }
 	.hp-highlight, .portfolio-item, .home-entry, #footer-one, #footer-three{ width: 200px; margin-right: 20px; }
 	#footer-two, #footer-four { width: 200px; margin-right: 0; }
-	
+
+	#footer-one { 
+		width: 100%; 
+	}
+
+	#footer-four{
+		display: block;
+		padding: 0 20%;
+		text-align: center;
+		width: 60%;
+	}	
 	.responsive-clear{ clear: both; }
 	
 	.loop-entry-thumbnail{width: 33%;}
