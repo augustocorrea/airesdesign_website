@@ -29,9 +29,15 @@ img{ max-width: 100%; }
 
 /* Apply To All Responsive Layouts
 ================================================== */
-@media only screen and (device-width: 768px) {
-
+@media only screen and (min-width: 960px) {
+	#footer-one .footer-widget{
+		width: 170px;
+	}
 	
+}
+
+/* Note: Design for a width of 740px */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
 }
 
 /* #Tablet (Portrait)
