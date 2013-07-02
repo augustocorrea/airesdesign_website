@@ -45,8 +45,20 @@ img{ max-width: 100%; }
 	#home-tagline{ font-size: 21px; }
 	#search { text-indent: -9999px; }
 	.loop-entry-thumbnail{width: 35%;}
-
-}
+	
+	#footer-one {
+		width: 100%;
+	}
+	#footer-four {
+		margin: 0 auto;
+		position: relative;
+		text-align: center;
+		width: 100%;
+	}
+	#footer-four .footer-widget {
+		width: 70%;
+		margin: 0 auto 15px;
+	}
 
 /*  #Mobile (Portrait)
 ================================================== */
