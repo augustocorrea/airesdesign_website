@@ -55,10 +55,12 @@ img{ max-width: 100%; }
 		text-align: center;
 		width: 100%;
 	}
+	
 	#footer-four .footer-widget {
 		width: 70%;
 		margin: 0 auto 15px;
 	}
+}
 
 /*  #Mobile (Portrait)
 ================================================== */
