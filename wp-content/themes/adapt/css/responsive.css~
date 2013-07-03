@@ -29,9 +29,15 @@ img{ max-width: 100%; }
 
 /* Apply To All Responsive Layouts
 ================================================== */
-@media only screen and (device-width: 768px) {
-
+@media only screen and (min-width: 960px) {
+	#footer-one .footer-widget{
+		width: 170px;
+	}
 	
+}
+
+/* Note: Design for a width of 740px */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
 }
 
 /* #Tablet (Portrait)
@@ -45,8 +51,38 @@ img{ max-width: 100%; }
 	#home-tagline{ font-size: 21px; }
 	#search { text-indent: -9999px; }
 	.loop-entry-thumbnail{width: 35%;}
-
+	
+	#footer-one {
+		width: 100%;
+	}
+	#footer-four {
+		margin: 0 auto;
+		position: relative;
+		text-align: center;
+		width: 100%;
+	}
+	
+	#footer-four .footer-widget {
+		width: 70%;
+		margin: 0 auto 15px;
+	}
+  #logo a {
+    background-size: 160px;
+    position: relative;
+    top: 10px;
+	}
 }
+
+
+@media only screen and (max-width: 800px) {
+	/*display dropdown nav*/
+	#masternav .selector,
+	#masternav select { display: inline-block; }
+	#masternav ul { display: none; }
+	#masternav{ padding: 0; height: 40px; line-height: 40px; float: none; padding: 0 5px; margin: 0; background: #3fb7b7; color: #fff; top: 0; right: 0; cursor: pointer; }
+}
+
+
 
 /*  #Mobile (Portrait)
 ================================================== */
@@ -58,7 +94,8 @@ img{ max-width: 100%; }
 	.flexslider .caption{ display: none; }
 	
 	#logo a {
-    background-size: 150px;	
+    background-size: 150px;
+    height: 60px;	
 	}
 	
 	/*display dropdown nav*/
@@ -112,7 +149,17 @@ img{ max-width: 100%; }
 	#wrap{ width: 420px; }
 	.hp-highlight, .portfolio-item, .home-entry, #footer-one, #footer-three{ width: 200px; margin-right: 20px; }
 	#footer-two, #footer-four { width: 200px; margin-right: 0; }
-	
+
+	#footer-one { 
+		width: 100%; 
+	}
+
+	#footer-four{
+		display: block;
+		padding: 0 20%;
+		text-align: center;
+		width: 60%;
+	}	
 	.responsive-clear{ clear: both; }
 	
 	.loop-entry-thumbnail{width: 33%;}

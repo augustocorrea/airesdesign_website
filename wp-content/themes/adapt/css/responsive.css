@@ -66,6 +66,11 @@ img{ max-width: 100%; }
 		width: 70%;
 		margin: 0 auto 15px;
 	}
+  #logo a {
+    background-size: 160px;
+    position: relative;
+    top: 10px;
+	}
 }
 
 
