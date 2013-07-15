@@ -56,8 +56,13 @@ $options = get_option( 'adapt_theme_settings' );
 <body <?php body_class(); ?>>
 
 <div id="wrap" class="clearfix">
+	<header id="masterhead" class="clearfix">
 
-    <header id="masterhead" class="clearfix">
+<ul class="language_chooser" id="qtranslate-2-chooser">
+	<li class="active"><a href="http://www.airesdesign.com.ar/" class="qtrans_flag_es qtrans_flag_and_text" title="Español"><span>Español</span></a></li>
+	<li><a href="http://www.airesdesign.com.ar/en/" class="qtrans_flag_en qtrans_flag_and_text" title="English"><span>English</span></a></li>
+</ul>
+
             <div id="logo">
                 <?php
                     if($options['upload_mainlogo'] !='') { ?>

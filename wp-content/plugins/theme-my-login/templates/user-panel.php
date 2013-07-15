@@ -4,6 +4,7 @@ If you would like to edit this file, copy it to your current theme's directory a
 Theme My Login will always look in your theme's directory first, before using this default template.
 */
 ?>
+<h4><?php echo _("Panel de usuario"); ?></h4>
 <div class="login" id="theme-my-login<?php $template->the_instance(); ?>">
 	<?php if ( $template->options['show_gravatar'] ) : ?>
 	<div class="tml-user-avatar"><?php $template->the_user_avatar(); ?></div>

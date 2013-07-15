@@ -182,10 +182,6 @@ article ul li {
 #sidebar ul li {
   list-style: square;
 }
-
-#single-portfolio ul li {
-  list-style: none !important;
-}
 /*-----------------------------------------------------------------------------------*
 /* = Structure
 /*-----------------------------------------------------------------------------------*/
@@ -244,7 +240,7 @@ h2 a:hover,
 h3 a:hover,
 h4 a:hover { color: #999; text-decoration: none; }
 
-.single-title{ margin-bottom: 15px; }
+.single-title{ margin-bottom: 25px; }
 
 /*-----------------------------------------------------------------------------------*
 /* = WordPress Styles
@@ -1500,7 +1496,7 @@ span.wpcf7-not-valid-tip{
 #footer-four{
 	float: right;
 	margin: 0;
-	width: 465px;
+	width: 356px;
 }
 .footer-widget{
 	color: #7f7f7f;

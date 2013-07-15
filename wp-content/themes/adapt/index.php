@@ -76,7 +76,7 @@ $options = get_option( 'adapt_theme_settings' );
     ?>
     <?php if($portfolio_posts) { ?>        
         <section id="home-projects" class="clearfix">
-            <h2 class="heading"><span><?php if(!empty($options['recent_work_text'])) { echo $options['recent_work_text']; } else { _e('Trabajos Recientes','adapt'); }?></span></h2>
+            <h2 class="heading"><span><?php if(!empty($options['recent_work_text'])) { echo $options['recent_work_text']; } else { if(gl()){ _e('Recent work','adapt'); }else{ _e('Trabajos recientes','adapt'); } }?></span></h2>
         
             <?php
             $count=0;
@@ -113,9 +113,9 @@ $options = get_option( 'adapt_theme_settings' );
         );
         $blog_posts = get_posts($args);
     ?>
-    <?php if($blog_posts) { ?>        
+    <?php if($blog_posts) { ?>
         <section id="home-posts" class="clearfix">
-            <h2 class="heading"><span><?php if(!empty($options['recent_work_text'])) { echo $options['recent_news_text']; } else { _e('Novedades','adapt'); }?></span></h2>
+            <h2 class="heading"><span><?php if(!empty($options['recent_work_text'])) { echo $options['recent_news_text']; } else { if(gl()){ _e('News','adapt'); }else{ _e('Novedades','adapt'); } }?></span></h2>
             <?php
             $count=0;
             foreach($blog_posts as $post) : setup_postdata($post);

@@ -22,6 +22,15 @@ require('functions/meta/meta-box-class.php');
 require('functions/meta/meta-box-usage.php');
 
 
+function gl(){
+  if(qtrans_getLanguage() == "en")
+    return true;
+  if(qtrans_getLanguage() == "es")
+    return false;
+}
+
+
+
 /*-----------------------------------------------------------------------------------*/
 /*	Images
 /*-----------------------------------------------------------------------------------*/

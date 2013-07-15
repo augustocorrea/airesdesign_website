@@ -409,21 +409,21 @@ class Theme_My_Login extends Theme_My_Login_Abstract {
 
 					// Some parts of this script use the main login form to display a message
 					if		( isset( $_GET['loggedout'] ) && true == $_GET['loggedout'] )
-						$this->errors->add( 'loggedout', __( 'You are now logged out.' ), 'message' );
+						$this->errors->add( 'loggedout', __( 'Su sesión fue cerrada.' ), 'message' );
 					elseif	( isset( $_GET['registration'] ) && 'disabled' == $_GET['registration'] )
-						$this->errors->add( 'registerdisabled', __( 'User registration is currently not allowed.' ) );
+						$this->errors->add( 'registerdisabled', __( 'El registro de usuarios no esta habilitado.' ) );
 					elseif	( isset( $_GET['checkemail'] ) && 'confirm' == $_GET['checkemail'] )
-						$this->errors->add( 'confirm', __( 'Check your e-mail for the confirmation link.' ), 'message' );
+						$this->errors->add( 'confirm', __( 'Chequea tu email para confirmar.' ), 'message' );
 					elseif ( isset( $_GET['resetpass'] ) && 'complete' == $_GET['resetpass'] )
-						$this->errors->add( 'password_reset', __( 'Your password has been reset.' ), 'message' );
+						$this->errors->add( 'password_reset', __( 'Su contraseña fue reiniciada.' ), 'message' );
 					elseif	( isset( $_GET['checkemail'] ) && 'registered' == $_GET['checkemail'] )
-						$this->errors->add( 'registered', __( 'Registration complete. Please check your e-mail.' ), 'message' );
+						$this->errors->add( 'registered', __( 'Registro completo. Vea su email para confirmarlo.' ), 'message' );
 					elseif	( $interim_login )
-						$this->errors->add( 'expired', __( 'Your session has expired. Please log-in again.' ), 'message' );
+						$this->errors->add( 'expired', __( 'Su sesión expiro, vuelva a ingresar.' ), 'message' );
 					elseif ( strpos( $redirect_to, 'about.php?updated' ) )
 						$this->errors->add('updated', __( '<strong>You have successfully updated WordPress!</strong> Please log back in to experience the awesomeness.' ), 'message' );
 					elseif	( $reauth )
-						$this->errors->add( 'reauth', __( 'Please log in to continue.', 'theme-my-login' ), 'message' );
+						$this->errors->add( 'reauth', __( 'Acceda para continuar.', 'theme-my-login' ), 'message' );
 
 					// Clear any stale cookies.
 					if ( $reauth )
