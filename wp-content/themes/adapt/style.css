@@ -1799,3 +1799,25 @@ div#theme-my-login input[type="password"],
 div#theme-my-login input[type="text"] {
   width: 100%;
 }
+
+/*Nuestros Perfiles*/
+
+.contenedor_perfil{
+	float: left;
+	margin: 20px 0;
+	width: 50%;
+}
+.contenedor_perfil .imagen_perfil{
+	float: left;
+}
+.contenedor_perfil h1,
+.contenedor_perfil p{
+	font-size: 20px;
+	float: left;
+	padding: 15px 0 0 15px;
+	width: 230px;
+}
+.contenedor_perfil p{
+	font-size: 16px;
+	padding-top: 0;
+}

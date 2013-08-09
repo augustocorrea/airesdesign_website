@@ -107,11 +107,11 @@ $options = get_option( 'adapt_theme_settings' );
     <?php
     //get post type ==> regular posts
         global $post;
-        $args = array(
+        /*$args = array(
             'post_type' =>'post',
             'numberposts' => '4'
-        );
-        $blog_posts = get_posts($args);
+        );*/
+        $blog_posts = query_posts('category_name=novedades');
     ?>
     <?php if($blog_posts) { ?>
         <section id="home-posts" class="clearfix">
