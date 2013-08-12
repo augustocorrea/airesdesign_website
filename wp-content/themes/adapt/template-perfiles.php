@@ -13,7 +13,7 @@
     <h1><?php the_title(); ?></h1>      
 </header>
 
-<div class="post clearfix">
+<div class="post clearfix pag_perfiles">
 
     <?php
     //query posts
@@ -26,7 +26,7 @@
             <?php echo get_the_post_thumbnail($page->ID, 'thumbnail'); ?>            
             </div>
             <!--Tomamos el permalink-->
-            <h1><a href="<?php the_permalink(' ') ?>"><?php echo get_the_title($ID); ?></a></h1>           
+            <h1><a href="<?php the_permalink(' ') ?>"><?php echo get_the_title($ID); ?></a></h1>      
             <!--Tomamos la etiqueta-->
             <?php 
             $posttags = get_the_tags();
@@ -36,6 +36,8 @@
                 }
             }
             ?>
+            <!--Tomamos el contenido-->
+            <p class="p_perfiles"><?php echo get_the_content();?></p>
 </div>  
         <?php endwhile; ?>
         <?php endif; ?>   
@@ -49,5 +51,4 @@
 <?php endwhile; ?>
 <?php endif; ?>
 
-<?php get_sidebar(); ?>
 <?php get_footer(); ?>

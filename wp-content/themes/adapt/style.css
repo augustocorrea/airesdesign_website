@@ -928,6 +928,9 @@ ul.filter a.active{
 	float: left;
 	width: 70%;
 }
+.pag_perfiles{
+	width: 100%;
+}
 .full-width{
 	float: none !important;
 	width: 100% !important;
@@ -1823,4 +1826,8 @@ div#theme-my-login input[type="text"] {
 .contenedor_perfil p{
 	font-size: 16px;
 	padding-top: 0;
+}
+.contenedor_perfil p.p_perfiles{
+	padding: 0 25px;
+	width: 65%;		
 }
