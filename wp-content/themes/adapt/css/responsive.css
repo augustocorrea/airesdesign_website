@@ -85,6 +85,14 @@ img{ max-width: 100%; }
   #masterhead {
     padding: 10px 0;
   }
+  .contenedor_perfil {
+    width: 50%;
+    margin-bottom: 20px;
+  }
+    .contenedor_perfil p.p_perfiles {
+    border: 0 none;
+  }
+
 }
 
 
@@ -153,6 +161,14 @@ img{ max-width: 100%; }
   #copyright,#back-to-top{ float: none; width: 100%; text-align: center; }
   
   .one-half, .one-third, .two-third, .one-fourth, .three-fourth, .one-fifth, .one-sixth {width: 100%; float: none;} 
+
+  .contenedor_perfil { 
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .contenedor_perfil p.p_perfiles {
+    border: 0 none;
+  }
 }
 
 

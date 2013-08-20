@@ -1807,27 +1807,41 @@ div#theme-my-login input[type="text"] {
 
 .contenedor_perfil{
 	float: left;
-	margin: 20px 0;
 	width: 25%;
 }
 .contenedor_perfil .imagen_perfil{
 	float: left;
-	text-align: center;
+	text-align: left;
 	width: 100%;
 }
 .contenedor_perfil h1,
 .contenedor_perfil p{
-	font-size: 20px;
+	font-size: 15px;
 	float: left;
 	padding: 0;
-	text-align: center;
 	width: 100%;
+	margin: 2px 0;
+	font-weight: normal;
 }
-.contenedor_perfil p{
-	font-size: 16px;
-	padding-top: 0;
+.contenedor_perfil p {
+	color: #029BF1;
 }
+
 .contenedor_perfil p.p_perfiles{
-	padding: 0 25px;
-	width: 65%;		
+	border-right: 1px dotted gray;
+	color: #000000;
+	font-size: 11px;
+	margin-top: 10px;
+	padding-right: 15%;
+	text-align: left;
+	width: 80%;
+}
+
+.contenedor_perfil p.p_perfiles strong{
+	margin: 5px 0;
+	display: block;
+}
+
+.contenedor_perfil h1 a {
+	color: #A7CE21;
 }
